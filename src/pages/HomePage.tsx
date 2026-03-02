@@ -21,7 +21,7 @@ export function HomePage({ userName, onNameChange }: HomePageProps) {
           <JoinSession userName={userName} />
         </div>
         <p className="home__demo">
-          <Link to="/session/demo">Voir un aperçu avec 11 joueurs</Link>
+          <Link to="/demo">Voir un aperçu avec 11 joueurs</Link>
         </p>
       </div>
     </Layout>

@@ -80,7 +80,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
     setShowNewSessionConfirm(false);
     try {
       const newId = await createSession(participantId);
-      navigate(`/session/${newId}`);
+      navigate(`/${newId}`);
     } catch {
       // ignore
     }
@@ -130,13 +130,13 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
           <div className="session-page__share">
               <span className="session-page__share-label">Partager :</span>
               <code className="session-page__share-url">
-                {window.location.origin}/session/{sessionId}
+                {window.location.origin}/{sessionId}
               </code>
               <button
                 type="button"
                 className="button button--small"
                 onClick={() => {
-                  navigator.clipboard.writeText(`${window.location.origin}/session/${sessionId}`);
+                  navigator.clipboard.writeText(`${window.location.origin}/${sessionId}`);
                 }}
               >
                 Copier

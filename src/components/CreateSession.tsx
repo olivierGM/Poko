@@ -33,7 +33,7 @@ export function CreateSession({ userName }: CreateSessionProps) {
           setTimeout(() => reject(new Error('Délai dépassé. Vérifie ta connexion et les règles Firestore.')), 15000)
         ),
       ]);
-      navigate(`/session/${sessionId}`);
+      navigate(`/${sessionId}`);
     } catch (e) {
       const err = e as Error & { code?: string };
       const message = err?.message ?? String(e);

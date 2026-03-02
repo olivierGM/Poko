@@ -22,7 +22,7 @@ export function JoinSession({ userName }: JoinSessionProps) {
       return;
     }
     setError(null);
-    navigate(`/session/${id}`);
+    navigate(`/${id}`);
   }
 
   return (
