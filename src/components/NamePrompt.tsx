@@ -10,7 +10,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const trimmed = value.trim();
+    const trimmed = value.trim().slice(0, 20);
     if (trimmed) onSubmit(trimmed);
   }
 
@@ -27,7 +27,8 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
             className="input name-prompt__input"
             placeholder="Ton prénom ou pseudo"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => setValue(e.target.value.slice(0, 20))}
+            maxLength={20}
             autoFocus
             autoComplete="username"
           />

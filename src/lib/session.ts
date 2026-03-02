@@ -3,7 +3,6 @@ import {
   setDoc,
   updateDoc,
   collection,
-  addDoc,
   getDoc,
   getDocs,
   query,
@@ -45,31 +44,29 @@ export async function addParticipant(
   participantId: string,
   name: string
 ): Promise<string> {
-  const participantsRef = collection(db, 'sessions', sessionId, 'participants');
-  const existing = await getParticipantDocId(sessionId, participantId);
+  const participantRef = doc(db, 'sessions', sessionId, 'participants', participantId);
   const now = serverTimestamp();
-  if (existing) {
-    await updateDoc(doc(db, 'sessions', sessionId, 'participants', existing), {
+  const exists = (await getDoc(participantRef)).exists();
+  await setDoc(
+    participantRef,
+    {
+      participantId,
       name,
       joinedAt: now,
       lastSeen: now,
-    });
-    return existing;
-  }
-  const docRef = await addDoc(participantsRef, {
-    participantId,
-    name,
-    vote: null,
-    joinedAt: now,
-    lastSeen: now,
-  });
-  return docRef.id;
+      ...(exists ? {} : { vote: null }),
+    },
+    { merge: true }
+  );
+  return participantId;
 }
 
 export async function getParticipantDocId(
   sessionId: string,
   participantId: string
 ): Promise<string | null> {
+  const refById = doc(db, 'sessions', sessionId, 'participants', participantId);
+  if ((await getDoc(refById)).exists()) return participantId;
   const participantsRef = collection(db, 'sessions', sessionId, 'participants');
   const q = query(participantsRef, where('participantId', '==', participantId));
   const snap = await getDocs(q);
@@ -86,16 +83,6 @@ export async function updateVote(
   if (!docId) return;
   const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
   await updateDoc(participantRef, { vote });
-}
-
-export async function updateParticipantLastSeen(
-  sessionId: string,
-  participantId: string
-): Promise<void> {
-  const docId = await getParticipantDocId(sessionId, participantId);
-  if (!docId) return;
-  const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
-  await updateDoc(participantRef, { lastSeen: serverTimestamp() });
 }
 
 export async function revealCards(sessionId: string): Promise<void> {

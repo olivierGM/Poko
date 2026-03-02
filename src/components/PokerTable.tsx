@@ -2,24 +2,34 @@ import { ParticipantSeat } from './ParticipantSeat';
 import type { Participant } from '../hooks/useSession';
 import type { SessionPhase } from '../hooks/useSession';
 
-const LAST_SEEN_MS = 90 * 1000;
-
-function lastSeenToMs(lastSeen: unknown): number {
-  const t = lastSeen as { toMillis?: () => number } | null | undefined;
-  return t?.toMillis?.() ?? 0;
-}
-
 interface PokerTableProps {
   participants: Participant[];
   phase: SessionPhase;
   currentParticipantId: string | null;
-  now?: number;
+  /** IDs des participants actuellement connectés (Realtime Database). Absent = déconnecté. */
+  connectedParticipantIds?: Set<string>;
 }
 
-export function PokerTable({ participants, phase, currentParticipantId, now = Date.now() }: PokerTableProps) {
+export function PokerTable({
+  participants,
+  phase,
+  currentParticipantId,
+  connectedParticipantIds = new Set(),
+}: PokerTableProps) {
   const count = participants.length;
   const positions = getSeatPositions(count);
   const manySeats = count >= 8;
+
+  const partiNames = participants
+    .filter((p) => {
+      const isCurrent = p.participantId === currentParticipantId;
+      const hasPresenceData = connectedParticipantIds.size > 0;
+      return hasPresenceData && !isCurrent && !connectedParticipantIds.has(p.participantId);
+    })
+    .map((p) => p.name);
+  if (count > 0) {
+    console.debug('[Poko presence] PokerTable connectedIds:', [...connectedParticipantIds], '-> affiché (parti):', partiNames);
+  }
 
   return (
     <div className={`poker-table-container ${manySeats ? 'poker-table-container--many' : ''}`}>
@@ -27,9 +37,11 @@ export function PokerTable({ participants, phase, currentParticipantId, now = Da
         <div className="poker-table__surface" aria-hidden />
         {participants.map((participant, index) => {
           const isCurrent = participant.participantId === currentParticipantId;
-          const lastSeenMs = lastSeenToMs(participant.lastSeen);
-          const hasLastSeen = participant.lastSeen != null && lastSeenMs > 0;
-          const isDisconnected = !isCurrent && hasLastSeen && now - lastSeenMs > LAST_SEEN_MS;
+          const hasPresenceData = connectedParticipantIds.size > 0;
+          const isDisconnected =
+            hasPresenceData &&
+            !isCurrent &&
+            !connectedParticipantIds.has(participant.participantId);
           return (
           <div
             key={participant.id}

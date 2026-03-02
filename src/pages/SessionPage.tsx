@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useRef, useState } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { PokerTable } from '../components/PokerTable';
 import { CardDeck } from '../components/CardDeck';
@@ -7,7 +7,16 @@ import { HostControls } from '../components/HostControls';
 import { RevealedStats } from '../components/RevealedStats';
 import { useSession } from '../hooks/useSession';
 import type { Participant, Session } from '../hooks/useSession';
-import { addParticipant, updateVote, getOrCreateParticipantId, createSession, updateParticipantLastSeen } from '../lib/session';
+import { addParticipant, updateVote, getOrCreateParticipantId, createSession } from '../lib/session';
+import {
+  setPresence,
+  removePresence,
+  usePresence,
+  disconnectPresence,
+  connectPresence,
+  updatePresenceHeartbeat,
+} from '../lib/presence';
+import { rtdb } from '../lib/firebase';
 
 const DEMO_PARTICIPANTS: Participant[] = [
   { id: 'd1', participantId: 'demo-1', name: 'Alice', vote: '5', joinedAt: null },
@@ -38,34 +47,67 @@ interface SessionPageProps {
 
 export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const { id: sessionId } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const isDemo = sessionId === 'demo';
   const realSession = useSession(isDemo ? null : sessionId ?? null);
-  const participantId = getOrCreateParticipantId();
+  const participantId =
+    searchParams.get('testParticipantId')?.trim() || getOrCreateParticipantId();
 
   const session = isDemo ? DEMO_SESSION : realSession.session;
   const participants = isDemo ? DEMO_PARTICIPANTS : realSession.participants;
   const loading = isDemo ? false : realSession.loading;
   const error = realSession.error;
 
-  const [now, setNow] = useState(() => Date.now());
   const [showNewSessionConfirm, setShowNewSessionConfirm] = useState(false);
+  const rtdbConnected = usePresence(isDemo ? null : sessionId ?? null);
+  const connectedParticipantIds = isDemo
+    ? new Set(participants.map((p) => p.participantId))
+    : rtdbConnected;
+
+  const displayName =
+    searchParams.get('testName')?.trim().slice(0, 20) || userName.trim().slice(0, 20);
+  const presenceRef = useRef<{ sessionId: string; participantId: string } | null>(null);
+  presenceRef.current =
+    isDemo || !rtdb || !sessionId ? null : { sessionId, participantId };
 
   useEffect(() => {
-    if (isDemo || !sessionId || !session || !userName.trim()) return;
-    addParticipant(sessionId, participantId, userName.trim()).catch(() => {});
-  }, [isDemo, sessionId, session, userName, participantId]);
+    if (isDemo || !sessionId || !session || !displayName) return;
+    addParticipant(sessionId, participantId, displayName).catch(() => {});
+  }, [isDemo, sessionId, session, displayName, participantId]);
 
   useEffect(() => {
-    if (isDemo || !sessionId) return;
-    const t = setInterval(() => updateParticipantLastSeen(sessionId, participantId).catch(() => {}), 25_000);
-    return () => clearInterval(t);
-  }, [isDemo, sessionId, participantId]);
+    if (isDemo || !rtdb || !sessionId || !displayName) return undefined;
+    connectPresence();
+    setPresence(sessionId, participantId, displayName).catch((err) => {
+      console.warn('[Poko presence] setPresence failed:', err);
+    });
+    const heartbeat = setInterval(
+      () => updatePresenceHeartbeat(sessionId, participantId, displayName).catch(() => {}),
+      5_000
+    );
+    return () => {
+      clearInterval(heartbeat);
+      void removePresence(sessionId, participantId).catch(() => {});
+    };
+  }, [isDemo, sessionId, participantId, displayName]);
 
   useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 10_000);
-    return () => clearInterval(t);
-  }, []);
+    if (isDemo || !rtdb) return;
+    function onLeave() {
+      const p = presenceRef.current;
+      if (p) {
+        removePresence(p.sessionId, p.participantId).catch(() => {});
+      }
+      disconnectPresence();
+    }
+    window.addEventListener('pagehide', onLeave);
+    window.addEventListener('beforeunload', onLeave);
+    return () => {
+      window.removeEventListener('pagehide', onLeave);
+      window.removeEventListener('beforeunload', onLeave);
+    };
+  }, [isDemo]);
 
   const currentParticipant = participants.find((p) => p.participantId === participantId);
   const myVote = currentParticipant?.vote ?? null;
@@ -78,6 +120,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
 
   async function confirmNewSession() {
     setShowNewSessionConfirm(false);
+    if (sessionId) await removePresence(sessionId, participantId).catch(() => {});
     try {
       const newId = await createSession(participantId);
       navigate(`/${newId}`);
@@ -148,7 +191,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
           participants={participants}
           phase={session.phase}
           currentParticipantId={isDemo ? null : participantId}
-          now={now}
+          connectedParticipantIds={connectedParticipantIds}
         />
 
         {session.phase === 'revealed' && (

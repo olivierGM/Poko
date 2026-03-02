@@ -36,6 +36,8 @@ export function useSession(sessionId: string | null) {
       return;
     }
 
+    setSession(null);
+    setParticipants([]);
     setLoading(true);
     setError(null);
 
@@ -79,13 +81,27 @@ export function useSession(sessionId: string | null) {
             lastSeen: data.lastSeen,
           };
         });
-        list.sort((a, b) => {
+        const byParticipantId = new Map<string, Participant>();
+        for (const p of list) {
+          const pid = p.participantId;
+          if (!pid) continue;
+          const existing = byParticipantId.get(pid);
+          if (!existing) byParticipantId.set(pid, p);
+          else {
+            const ta = existing.joinedAt as { toMillis?: () => number } | null;
+            const tb = p.joinedAt as { toMillis?: () => number } | null;
+            if (tb?.toMillis && (!ta?.toMillis || tb.toMillis() < ta.toMillis()))
+              byParticipantId.set(pid, p);
+          }
+        }
+        const deduped = [...byParticipantId.values()];
+        deduped.sort((a, b) => {
           const ta = a.joinedAt as { toMillis?: () => number } | null;
           const tb = b.joinedAt as { toMillis?: () => number } | null;
           if (ta?.toMillis && tb?.toMillis) return ta.toMillis() - tb.toMillis();
           return 0;
         });
-        setParticipants(list);
+        setParticipants(deduped);
         setLoading(false);
       },
       () => {

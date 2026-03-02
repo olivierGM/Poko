@@ -18,7 +18,7 @@ Application web de planning poker pour vos séances de raffinement. Plusieurs pa
    npm install
    ```
 
-2. Configurer Firebase : copier `.env.example` vers `.env` et renseigner les variables avec les valeurs de votre projet Firebase (Firestore + Hosting).
+2. Configurer Firebase : copier `.env.example` vers `.env` et renseigner les variables avec les valeurs de votre projet Firebase (Firestore, Hosting, Realtime Database pour la présence). L’URL de la Realtime Database se trouve dans la console Firebase (Realtime Database > URL).
 
 3. Démarrer l’app en mode dev :
 
@@ -28,12 +28,25 @@ Application web de planning poker pour vos séances de raffinement. Plusieurs pa
 
 4. Ouvrir l’URL affichée (souvent `http://localhost:5173`).
 
+### Tester la détection « parti » (présence)
+
+Pour valider que la présence Realtime Database fonctionne :
+
+1. Lancer l’app (`npm run dev`), ouvrir la page d’accueil et créer une session (tu es **User1** sur l’URL du type `http://localhost:5173/xxxxx`).
+2. Ouvrir un **second onglet** avec la même session en ajoutant en query string un second participant :  
+   `http://localhost:5173/xxxxx?testParticipantId=User2&testName=User2`  
+   (remplacer `xxxxx` par l’ID de ta session). Tu dois voir deux participants (User1 et User2).
+3. Dans le **second onglet**, quitter la page (fermer l’onglet ou aller sur `about:blank`).
+4. Revenir au **premier onglet** : User2 doit afficher « (parti) » à côté de son nom.
+
+Si « (parti) » s’affiche, la Realtime Database et les handlers `pagehide` / `goOffline` fonctionnent correctement.
+
 ## Déploiement (Firebase Hosting)
 
 Aucun projet Firebase n’est créé par le code : crée-le toi-même dans la [Firebase Console](https://console.firebase.google.com/) (tu peux le nommer « Poko »).
 
-1. Créer un projet sur Firebase Console, puis **Firestore Database > Créer une base de données** (mode Natif) si ce n’est pas déjà fait.
-2. Renseigner `.env` avec les identifiants du projet.
+1. Créer un projet sur Firebase Console, puis **Firestore Database > Créer une base de données** (mode Natif) si ce n’est pas déjà fait. Créer aussi une **Realtime Database** (pour la détection de présence en temps réel).
+2. Renseigner `.env` avec les identifiants du projet, y compris `VITE_FIREBASE_DATABASE_URL` (URL de la Realtime Database).
 3. Mettre à jour `.firebaserc` avec l’ID du projet : `"default": "votre-project-id"`.
 4. Déployer les règles Firestore et le site :
 
@@ -62,7 +75,7 @@ L’app sera disponible sur l’URL de hosting Firebase (ex. `https://votre-proj
 
 - React 19 + TypeScript
 - Vite
-- Firebase (Firestore, Hosting)
+- Firebase (Firestore, Realtime Database pour la présence, Hosting)
 - React Router
 
 ## Licence

@@ -21,7 +21,12 @@ export function ParticipantSeat({ participant, phase, isCurrentUser, isDisconnec
       </div>
       <span className="participant-seat__name">
         {participant.name || 'Anonyme'}
-        {isDisconnected && <span className="participant-seat__parti" title="A quitté la session"> (parti)</span>}
+        {isCurrentUser && <span className="participant-seat__you" title="C’est vous"> (vous)</span>}
+        {isDisconnected && (
+          <span className="participant-seat__parti" title="A quitté la session">
+            {' '}(parti)
+          </span>
+        )}
         {hasVoted && phase === 'voting' && !isDisconnected && (
           <span className="participant-seat__voted" title="A voté"> ✓</span>
         )}

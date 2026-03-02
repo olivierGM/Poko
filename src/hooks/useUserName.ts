@@ -9,16 +9,16 @@ export function useUserName(): [string, (name: string) => void, boolean] {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored?.trim()) {
-      setNameState(stored.trim());
+      setNameState(stored.trim().slice(0, 20));
     }
     setHasChecked(true);
   }, []);
 
   const setName = useCallback((newName: string) => {
-    const trimmed = newName.trim();
+    const trimmed = newName.trim().slice(0, 20);
     setNameState(trimmed);
     if (trimmed) {
-      localStorage.setItem(STORAGE_KEY, trimmed);
+      localStorage.setItem(STORAGE_KEY, trimmed.slice(0, 20));
     } else {
       localStorage.removeItem(STORAGE_KEY);
     }

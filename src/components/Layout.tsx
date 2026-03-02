@@ -14,13 +14,13 @@ export function Layout({ children, title, userName, onNameChange, onNewSession }
   const [editValue, setEditValue] = useState(userName ?? '');
 
   function openEdit() {
-    setEditValue(userName ?? '');
+    setEditValue((userName ?? '').slice(0, 20));
     setEditingName(true);
   }
 
   function submitEdit(e: React.FormEvent) {
     e.preventDefault();
-    const trimmed = editValue.trim();
+    const trimmed = editValue.trim().slice(0, 20);
     if (trimmed && onNameChange) {
       onNameChange(trimmed);
       setEditingName(false);
@@ -68,7 +68,8 @@ export function Layout({ children, title, userName, onNameChange, onNewSession }
                 type="text"
                 className="input layout__name-modal-input"
                 value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
+                onChange={(e) => setEditValue(e.target.value.slice(0, 20))}
+                maxLength={20}
                 placeholder="Ton prénom ou pseudo"
                 autoFocus
               />
