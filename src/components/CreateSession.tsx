@@ -27,16 +27,25 @@ export function CreateSession({ userName }: CreateSessionProps) {
     setError(null);
     try {
       const hostId = getOrCreateParticipantId();
-      const sessionId = await createSession(hostId);
+      const sessionId = await Promise.race([
+        createSession(hostId),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Délai dépassé. Vérifie ta connexion et les règles Firestore.')), 15000)
+        ),
+      ]);
       navigate(`/session/${sessionId}`);
     } catch (e) {
-      const message =
-        e instanceof Error ? e.message : 'Erreur lors de la création';
+      const err = e as Error & { code?: string };
+      const message = err?.message ?? String(e);
+      const code = err?.code ?? '';
       setError(
-        message.includes('permission') || message.includes('Permission')
-          ? 'Vérifie les règles Firestore et que le projet Firebase est bien configuré.'
-          : message
+        code === 'permission-denied' || message.includes('permission') || message.includes('Permission')
+          ? 'Accès refusé par Firestore. Vérifie que la base Firestore existe et que les règles autorisent lecture/écriture.'
+          : code
+            ? `Erreur (${code}): ${message}`
+            : message
       );
+    } finally {
       setLoading(false);
     }
   }

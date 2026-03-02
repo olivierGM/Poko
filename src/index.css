@@ -40,6 +40,10 @@ body {
   padding: 1rem 1.5rem;
   background: var(--felt-border);
   border-bottom: 3px solid rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .layout__title {
@@ -48,6 +52,83 @@ body {
   font-weight: 700;
   color: #fff;
   letter-spacing: 0.02em;
+}
+
+.layout__user {
+  flex-shrink: 0;
+}
+
+.layout__user-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.6rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.layout__user-name:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.layout__user-label {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layout__user-edit {
+  opacity: 0.8;
+  font-size: 0.85rem;
+}
+
+.layout__name-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 100;
+}
+
+.layout__name-modal {
+  background: #1e2d3d;
+  border-radius: 12px;
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.layout__name-modal-title {
+  margin: 0 0 1rem;
+  font-size: 1.1rem;
+  color: #fff;
+}
+
+.layout__name-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.layout__name-modal-input {
+  max-width: none;
+}
+
+.layout__name-modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
 }
 
 .layout__main {

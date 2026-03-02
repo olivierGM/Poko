@@ -4,11 +4,12 @@ import { JoinSession } from '../components/JoinSession';
 
 interface HomePageProps {
   userName: string;
+  onNameChange?: (name: string) => void;
 }
 
-export function HomePage({ userName }: HomePageProps) {
+export function HomePage({ userName, onNameChange }: HomePageProps) {
   return (
-    <Layout title="Poko">
+    <Layout title="Poko" userName={userName} onNameChange={onNameChange}>
       <div className="home">
         <p className="home__intro">
           Planning poker pour vos raffinements. Démarrer une session ou rejoindre avec un ID.

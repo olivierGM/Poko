@@ -19,5 +19,9 @@ export function isFirebaseConfigured(): boolean {
   );
 }
 
+if (!firebaseConfig.projectId || !firebaseConfig.apiKey) {
+  console.warn('Poko: Firebase non configuré (VITE_FIREBASE_* manquant dans .env). Création de session désactivée.');
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);

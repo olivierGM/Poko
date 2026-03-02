@@ -9,9 +9,10 @@ import { addParticipant, updateVote, getOrCreateParticipantId } from '../lib/ses
 
 interface SessionPageProps {
   userName: string;
+  onNameChange?: (name: string) => void;
 }
 
-export function SessionPage({ userName }: SessionPageProps) {
+export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const { id: sessionId } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { session, participants, loading, error } = useSession(sessionId ?? null);
@@ -34,7 +35,7 @@ export function SessionPage({ userName }: SessionPageProps) {
 
   if (loading && !session) {
     return (
-      <Layout title="Poko">
+      <Layout title="Poko" userName={userName} onNameChange={onNameChange}>
         <div className="session-loading">Chargement de la session…</div>
       </Layout>
     );
@@ -42,7 +43,7 @@ export function SessionPage({ userName }: SessionPageProps) {
 
   if (error || !session) {
     return (
-      <Layout title="Poko">
+      <Layout title="Poko" userName={userName} onNameChange={onNameChange}>
         <div className="session-error">
           <p>{error ?? 'Session introuvable.'}</p>
           <button type="button" className="button" onClick={() => navigate('/')}>
@@ -54,7 +55,7 @@ export function SessionPage({ userName }: SessionPageProps) {
   }
 
   return (
-    <Layout title="Poko">
+    <Layout title="Poko" userName={userName} onNameChange={onNameChange}>
       <div className="session-page">
         <div className="session-page__share">
           <span className="session-page__share-label">Partager :</span>

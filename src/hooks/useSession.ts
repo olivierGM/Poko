@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, onSnapshot, collection, query, orderBy } from 'firebase/firestore';
+import { doc, onSnapshot, collection } from 'firebase/firestore';
 import type { DocumentData, QuerySnapshot, DocumentSnapshot } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -64,9 +64,8 @@ export function useSession(sessionId: string | null) {
     );
 
     const participantsRef = collection(db, 'sessions', sessionId, 'participants');
-    const q = query(participantsRef, orderBy('joinedAt', 'asc'));
     const unsubParticipants = onSnapshot(
-      q,
+      participantsRef,
       (snap: QuerySnapshot<DocumentData>) => {
         const list: Participant[] = snap.docs.map((d) => {
           const data = d.data();
@@ -78,11 +77,17 @@ export function useSession(sessionId: string | null) {
             joinedAt: data.joinedAt,
           };
         });
+        list.sort((a, b) => {
+          const ta = a.joinedAt as { toMillis?: () => number } | null;
+          const tb = b.joinedAt as { toMillis?: () => number } | null;
+          if (ta?.toMillis && tb?.toMillis) return ta.toMillis() - tb.toMillis();
+          return 0;
+        });
         setParticipants(list);
         setLoading(false);
       },
-      (err) => {
-        setError(err.message);
+      () => {
+        setParticipants([]);
         setLoading(false);
       }
     );

@@ -5,7 +5,6 @@ export const CARD_VALUES = [
   { value: '5', label: '5', emoji: false },
   { value: '8', label: '8', emoji: false },
   { value: '13', label: '13', emoji: false },
-  { value: '21', label: '21', emoji: false },
   { value: '20', label: '20', emoji: false },
   { value: '40', label: '40', emoji: false },
   { value: '100', label: '100', emoji: false },

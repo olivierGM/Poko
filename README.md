@@ -32,7 +32,7 @@ Application web de planning poker pour vos séances de raffinement. Plusieurs pa
 
 Aucun projet Firebase n’est créé par le code : crée-le toi-même dans la [Firebase Console](https://console.firebase.google.com/) (tu peux le nommer « Poko »).
 
-1. Créer un projet sur Firebase Console et activer Firestore.
+1. Créer un projet sur Firebase Console, puis **Firestore Database > Créer une base de données** (mode Natif) si ce n’est pas déjà fait.
 2. Renseigner `.env` avec les identifiants du projet.
 3. Mettre à jour `.firebaserc` avec l’ID du projet : `"default": "votre-project-id"`.
 4. Déployer les règles Firestore et le site :

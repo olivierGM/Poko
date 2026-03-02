@@ -19,8 +19,8 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<HomePage userName={userName} />} />
-        <Route path="/session/:id" element={<SessionPage userName={userName} />} />
+        <Route path="/" element={<HomePage userName={userName} onNameChange={setUserName} />} />
+        <Route path="/session/:id" element={<SessionPage userName={userName} onNameChange={setUserName} />} />
       </Routes>
     </BrowserRouter>
   );
