@@ -19,6 +19,7 @@ export interface Participant {
   name: string;
   vote: string | null;
   joinedAt: unknown;
+  lastSeen?: unknown;
 }
 
 export function useSession(sessionId: string | null) {
@@ -75,6 +76,7 @@ export function useSession(sessionId: string | null) {
             name: data.name ?? '',
             vote: data.vote ?? null,
             joinedAt: data.joinedAt,
+            lastSeen: data.lastSeen,
           };
         });
         list.sort((a, b) => {

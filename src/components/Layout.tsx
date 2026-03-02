@@ -6,9 +6,10 @@ interface LayoutProps {
   title?: string;
   userName?: string;
   onNameChange?: (name: string) => void;
+  onNewSession?: () => void;
 }
 
-export function Layout({ children, title, userName, onNameChange }: LayoutProps) {
+export function Layout({ children, title, userName, onNameChange, onNewSession }: LayoutProps) {
   const [editingName, setEditingName] = useState(false);
   const [editValue, setEditValue] = useState(userName ?? '');
 
@@ -30,19 +31,33 @@ export function Layout({ children, title, userName, onNameChange }: LayoutProps)
     <div className="layout">
       <header className="layout__header">
         <h1 className="layout__title">{title ?? 'Poko'}</h1>
-        {userName != null && onNameChange && (
-          <div className="layout__user">
-            <button
-              type="button"
-              className="layout__user-name"
-              onClick={openEdit}
-              title="Modifier mon nom"
-            >
-              <span className="layout__user-label">{userName || 'Sans nom'}</span>
-              <span className="layout__user-edit" aria-hidden>✎</span>
-            </button>
-          </div>
-        )}
+        <div className="layout__header-actions">
+          {onNewSession && (
+            <div className="layout__user">
+              <button
+                type="button"
+                className="layout__user-name"
+                onClick={onNewSession}
+                title="Créer une nouvelle partie"
+              >
+                <span className="layout__user-label">Nouvelle partie</span>
+              </button>
+            </div>
+          )}
+          {userName != null && onNameChange && (
+            <div className="layout__user">
+              <button
+                type="button"
+                className="layout__user-name"
+                onClick={openEdit}
+                title="Modifier mon nom"
+              >
+                <span className="layout__user-label">{userName || 'Sans nom'}</span>
+                <span className="layout__user-edit" aria-hidden>✎</span>
+              </button>
+            </div>
+          )}
+        </div>
       </header>
       {editingName && onNameChange && (
         <div className="layout__name-modal-overlay" role="dialog" aria-labelledby="edit-name-title">

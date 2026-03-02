@@ -5,22 +5,24 @@ interface ParticipantSeatProps {
   participant: Participant;
   phase: 'voting' | 'revealed';
   isCurrentUser: boolean;
+  isDisconnected?: boolean;
 }
 
-export function ParticipantSeat({ participant, phase, isCurrentUser }: ParticipantSeatProps) {
+export function ParticipantSeat({ participant, phase, isCurrentUser, isDisconnected }: ParticipantSeatProps) {
   const showVote = phase === 'revealed' || (isCurrentUser && participant.vote != null);
   const voteValue = participant.vote;
 
   const hasVoted = participant.vote != null;
 
   return (
-    <div className="participant-seat">
+    <div className={`participant-seat ${isDisconnected ? 'participant-seat--parti' : ''}`}>
       <div className="participant-seat__avatar" aria-hidden>
         {participant.name.charAt(0).toUpperCase()}
       </div>
       <span className="participant-seat__name">
         {participant.name || 'Anonyme'}
-        {hasVoted && phase === 'voting' && (
+        {isDisconnected && <span className="participant-seat__parti" title="A quitté la session"> (parti)</span>}
+        {hasVoted && phase === 'voting' && !isDisconnected && (
           <span className="participant-seat__voted" title="A voté"> ✓</span>
         )}
       </span>

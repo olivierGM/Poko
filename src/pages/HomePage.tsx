@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { CreateSession } from '../components/CreateSession';
 import { JoinSession } from '../components/JoinSession';
@@ -19,6 +20,9 @@ export function HomePage({ userName, onNameChange }: HomePageProps) {
           <div className="home__divider">ou</div>
           <JoinSession userName={userName} />
         </div>
+        <p className="home__demo">
+          <Link to="/session/demo">Voir un aperçu avec 11 joueurs</Link>
+        </p>
       </div>
     </Layout>
   );

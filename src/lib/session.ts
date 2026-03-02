@@ -47,10 +47,12 @@ export async function addParticipant(
 ): Promise<string> {
   const participantsRef = collection(db, 'sessions', sessionId, 'participants');
   const existing = await getParticipantDocId(sessionId, participantId);
+  const now = serverTimestamp();
   if (existing) {
     await updateDoc(doc(db, 'sessions', sessionId, 'participants', existing), {
       name,
-      joinedAt: serverTimestamp(),
+      joinedAt: now,
+      lastSeen: now,
     });
     return existing;
   }
@@ -58,7 +60,8 @@ export async function addParticipant(
     participantId,
     name,
     vote: null,
-    joinedAt: serverTimestamp(),
+    joinedAt: now,
+    lastSeen: now,
   });
   return docRef.id;
 }
@@ -83,6 +86,16 @@ export async function updateVote(
   if (!docId) return;
   const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
   await updateDoc(participantRef, { vote });
+}
+
+export async function updateParticipantLastSeen(
+  sessionId: string,
+  participantId: string
+): Promise<void> {
+  const docId = await getParticipantDocId(sessionId, participantId);
+  if (!docId) return;
+  const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
+  await updateDoc(participantRef, { lastSeen: serverTimestamp() });
 }
 
 export async function revealCards(sessionId: string): Promise<void> {
