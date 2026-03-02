@@ -1,4 +1,4 @@
-# PokoQC
+# Poko
 
 Application web de planning poker pour vos séances de raffinement. Plusieurs participants peuvent rejoindre une session via une URL, estimer avec des cartes (Fibonacci, 20/40/100, sablier, pause), et l’hôte révèle les cartes pour tout le monde.
 
@@ -30,7 +30,9 @@ Application web de planning poker pour vos séances de raffinement. Plusieurs pa
 
 ## Déploiement (Firebase Hosting)
 
-1. Créer un projet sur [Firebase Console](https://console.firebase.google.com/) et activer Firestore.
+Aucun projet Firebase n’est créé par le code : crée-le toi-même dans la [Firebase Console](https://console.firebase.google.com/) (tu peux le nommer « Poko »).
+
+1. Créer un projet sur Firebase Console et activer Firestore.
 2. Renseigner `.env` avec les identifiants du projet.
 3. Mettre à jour `.firebaserc` avec l’ID du projet : `"default": "votre-project-id"`.
 4. Déployer les règles Firestore et le site :
@@ -41,6 +43,20 @@ Application web de planning poker pour vos séances de raffinement. Plusieurs pa
    ```
 
 L’app sera disponible sur l’URL de hosting Firebase (ex. `https://votre-project.web.app`).
+
+## Héberger le code sur GitHub
+
+1. Crée un nouveau dépôt sur [GitHub](https://github.com/new) (ex. `poko` ou `planning-poker`). Ne coche pas « Initialize with README » si le projet a déjà un commit local.
+
+2. Dans le dossier du projet, ajoute le remote et pousse le code :
+
+   ```bash
+   git remote add origin https://github.com/olivierGM/Poko.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+   Si le dépôt est ailleurs, remplace l’URL par la tienne.
 
 ## Stack
 

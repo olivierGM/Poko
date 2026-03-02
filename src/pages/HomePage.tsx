@@ -8,7 +8,7 @@ interface HomePageProps {
 
 export function HomePage({ userName }: HomePageProps) {
   return (
-    <Layout title="PokoQC">
+    <Layout title="Poko">
       <div className="home">
         <p className="home__intro">
           Planning poker pour vos raffinements. Démarrer une session ou rejoindre avec un ID.

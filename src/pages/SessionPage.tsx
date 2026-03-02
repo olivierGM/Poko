@@ -34,7 +34,7 @@ export function SessionPage({ userName }: SessionPageProps) {
 
   if (loading && !session) {
     return (
-      <Layout title="PokoQC">
+      <Layout title="Poko">
         <div className="session-loading">Chargement de la session…</div>
       </Layout>
     );
@@ -42,7 +42,7 @@ export function SessionPage({ userName }: SessionPageProps) {
 
   if (error || !session) {
     return (
-      <Layout title="PokoQC">
+      <Layout title="Poko">
         <div className="session-error">
           <p>{error ?? 'Session introuvable.'}</p>
           <button type="button" className="button" onClick={() => navigate('/')}>
@@ -54,7 +54,7 @@ export function SessionPage({ userName }: SessionPageProps) {
   }
 
   return (
-    <Layout title="PokoQC">
+    <Layout title="Poko">
       <div className="session-page">
         <div className="session-page__share">
           <span className="session-page__share-label">Partager :</span>

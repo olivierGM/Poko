@@ -4,12 +4,12 @@
   font-weight: 400;
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.9);
-  background-color: #1a2e1a;
+  background-color: #1a2432;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
-  --felt: #0d5c0d;
-  --felt-border: #0a4a0a;
+  --felt: #0d3d5c;
+  --felt-border: #0a2d4a;
   --card-bg: #fff;
   --card-text: #1a1a1a;
   --card-back: #1a3a5c;
@@ -75,13 +75,13 @@ body {
 }
 
 .button--primary {
-  background: #2e7d2e;
+  background: #1976d2;
   color: #fff;
-  border-color: #1b5e1b;
+  border-color: #1565c0;
 }
 
 .button--primary:hover:not(:disabled) {
-  background: #388e38;
+  background: #1e88e5;
 }
 
 .button--secondary {
@@ -122,7 +122,7 @@ body {
 }
 
 .input:focus {
-  outline: 2px solid #4caf50;
+  outline: 2px solid #2196f3;
   outline-offset: 2px;
 }
 
@@ -195,7 +195,7 @@ body {
 }
 
 .name-prompt {
-  background: #1e3d1e;
+  background: #1e2d3d;
   border-radius: 12px;
   padding: 2rem;
   max-width: 360px;
@@ -315,7 +315,7 @@ body {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #2e7d2e;
+  background: #1976d2;
   border: 2px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
@@ -337,7 +337,7 @@ body {
 }
 
 .participant-seat__voted {
-  color: #81c784;
+  color: #64b5f6;
   font-weight: 600;
 }
 
@@ -372,7 +372,7 @@ body {
 }
 
 .card--selected {
-  outline: 3px solid #4caf50;
+  outline: 3px solid #2196f3;
   outline-offset: 2px;
   transform: translateY(-2px);
 }

@@ -10,5 +10,14 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
+export function isFirebaseConfigured(): boolean {
+  return Boolean(
+    firebaseConfig.projectId &&
+      firebaseConfig.apiKey &&
+      typeof firebaseConfig.projectId === 'string' &&
+      firebaseConfig.projectId.length > 0
+  );
+}
+
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
