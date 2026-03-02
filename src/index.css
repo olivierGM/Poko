@@ -1,0 +1,458 @@
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: #1a2e1a;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  --felt: #0d5c0d;
+  --felt-border: #0a4a0a;
+  --card-bg: #fff;
+  --card-text: #1a1a1a;
+  --card-back: #1a3a5c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Layout */
+.layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout__header {
+  padding: 1rem 1.5rem;
+  background: var(--felt-border);
+  border-bottom: 3px solid rgba(0, 0, 0, 0.3);
+}
+
+.layout__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+.layout__main {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Buttons */
+.button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.button:active {
+  transform: scale(0.98);
+}
+
+.button--primary {
+  background: #2e7d2e;
+  color: #fff;
+  border-color: #1b5e1b;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #388e38;
+}
+
+.button--secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.button--small {
+  padding: 0.35em 0.75em;
+  font-size: 0.9em;
+}
+
+.button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Input */
+.input {
+  padding: 0.6em 0.9em;
+  font-size: 1em;
+  font-family: inherit;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  width: 100%;
+  max-width: 280px;
+}
+
+.input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.input:focus {
+  outline: 2px solid #4caf50;
+  outline-offset: 2px;
+}
+
+/* Home */
+.home {
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.home__intro {
+  margin-bottom: 2rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 1.05rem;
+}
+
+.home__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.home__divider {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+}
+
+.create-session__error,
+.join-session__error {
+  color: #f44336;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.join-session {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.join-session__label {
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.join-session__input {
+  text-align: center;
+  text-transform: lowercase;
+}
+
+/* Name prompt */
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.name-prompt-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.name-prompt {
+  background: #1e3d1e;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 360px;
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.name-prompt__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.35rem;
+  color: #fff;
+}
+
+.name-prompt__hint {
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.name-prompt__form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.name-prompt__input {
+  max-width: none;
+}
+
+/* Session */
+.session-loading,
+.session-error {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.session-error .button {
+  margin-top: 1rem;
+}
+
+.session-page {
+  width: 100%;
+  max-width: 900px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 180px;
+}
+
+.session-page__share {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.session-page__share-label {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.session-page__share-url {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.25em 0.5em;
+  border-radius: 4px;
+  font-size: 0.85em;
+  word-break: break-all;
+}
+
+/* Poker table */
+.poker-table-container {
+  width: 100%;
+  max-width: 560px;
+  aspect-ratio: 1.6;
+  position: relative;
+}
+
+.poker-table {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--felt);
+  border: 12px solid var(--felt-border);
+  box-shadow:
+    inset 0 0 60px rgba(0, 0, 0, 0.3),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.poker-table__surface {
+  position: absolute;
+  inset: 8px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.participant-seat-wrapper {
+  position: absolute;
+  min-width: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.participant-seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem;
+}
+
+.participant-seat__avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #2e7d2e;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.participant-seat__name {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.participant-seat__voted {
+  color: #81c784;
+  font-weight: 600;
+}
+
+.participant-seat__card {
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cards */
+.card {
+  min-width: 48px;
+  height: 68px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: var(--card-bg);
+  color: var(--card-text);
+  font-weight: 700;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  padding: 0.25rem;
+}
+
+.card:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.card--selected {
+  outline: 3px solid #4caf50;
+  outline-offset: 2px;
+  transform: translateY(-2px);
+}
+
+.card--back {
+  background: var(--card-back);
+  color: #fff;
+  cursor: default;
+}
+
+.card--back .card__back-inner {
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+.card--small {
+  min-width: 36px;
+  height: 50px;
+  font-size: 1rem;
+}
+
+.card--small .card__value {
+  font-size: 1rem;
+}
+
+.card__value {
+  font-size: 1.25rem;
+}
+
+/* Card deck (bottom bar) */
+.card-deck {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 1rem 0.75rem;
+  background: rgba(0, 0, 0, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.card-deck .card {
+  flex-shrink: 0;
+}
+
+/* Host controls */
+.host-controls {
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .poker-table-container {
+    max-width: 100%;
+    min-height: 280px;
+  }
+
+  .participant-seat__avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
+  .participant-seat__name {
+    font-size: 0.75rem;
+    max-width: 70px;
+  }
+
+  .card-deck {
+    padding: 0.75rem;
+    max-height: 120px;
+  }
+
+  .card-deck .card {
+    min-width: 40px;
+    height: 56px;
+    font-size: 1rem;
+  }
+}
