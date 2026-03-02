@@ -1,0 +1,31 @@
+---
+description: Contexte et actions du projet Poko (planning poker)
+alwaysApply: true
+---
+
+# Projet Poko
+
+Application web de planning poker (React + TypeScript + Vite, Firebase Firestore + Hosting).
+
+## Contexte technique
+
+- **Firebase** : projet `poko-9cf98`. Config dans `.env` (ne pas committer). `.firebaserc` pointe déjà sur ce projet.
+- **GitHub** : dépôt `https://github.com/olivierGM/Poko`, remote `origin` configuré.
+- **Fonctionnalités** : créer session, rejoindre par URL ou ID, voter (cartes Fibonacci + 20/40/100 + sablier/pause), hôte révèle les cartes, nouveau tour.
+
+## Actions à effectuer quand l’utilisateur le demande
+
+1. **Lancer le serveur local** : `npm run dev` (en arrière-plan si besoin). L’app est sur un port du type 5173+.
+2. **Build** : `npm run build` pour vérifier ou préparer le déploiement.
+3. **Déployer sur Firebase** : `npm run build` puis `firebase deploy` (ou `firebase deploy --only hosting` / `--only firestore:rules`).
+4. **Pousser sur GitHub** : `git add -A`, `git commit -m "..."`, `git push origin master` (ou la branche courante). Ne jamais committer `.env`.
+5. **Règles Firestore** : fichier `firestore.rules` à la racine ; les déployer avec `firebase deploy --only firestore`.
+
+## Fichiers importants
+
+- `src/lib/firebase.ts` : init Firestore, `isFirebaseConfigured()`
+- `src/lib/session.ts` : création session, participants, votes, révélation
+- `src/pages/SessionPage.tsx` : page session avec table, deck, host controls
+- `.env` : config Firebase (gitignored)
+
+Quand l’utilisateur demande de lancer l’app, déployer, pousser le code ou vérifier les fonctionnalités, exécuter les commandes appropriées sans demander de confirmation pour ces actions standard.
