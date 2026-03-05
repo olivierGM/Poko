@@ -39,14 +39,20 @@ export async function createSession(hostId: string): Promise<string> {
   return sessionId;
 }
 
+export type ParticipantRole = 'participant' | 'observer';
+
 export async function addParticipant(
   sessionId: string,
   participantId: string,
-  name: string
+  name: string,
+  role: ParticipantRole = 'participant'
 ): Promise<string> {
   const participantRef = doc(db, 'sessions', sessionId, 'participants', participantId);
   const now = serverTimestamp();
-  const exists = (await getDoc(participantRef)).exists();
+  const snap = await getDoc(participantRef);
+  const exists = snap.exists();
+  // Préserver le rôle existant (ex. observateur) pour ne pas le réinitialiser à chaque refresh/reconnexion
+  const currentRole = exists && snap.data()?.role === 'observer' ? 'observer' : role;
   await setDoc(
     participantRef,
     {
@@ -54,11 +60,23 @@ export async function addParticipant(
       name,
       joinedAt: now,
       lastSeen: now,
+      role: currentRole,
       ...(exists ? {} : { vote: null }),
     },
     { merge: true }
   );
   return participantId;
+}
+
+export async function updateParticipantRole(
+  sessionId: string,
+  participantId: string,
+  role: ParticipantRole
+): Promise<void> {
+  const docId = await getParticipantDocId(sessionId, participantId);
+  if (!docId) return;
+  const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
+  await updateDoc(participantRef, role === 'observer' ? { role, vote: null } : { role });
 }
 
 export async function getParticipantDocId(
@@ -82,6 +100,8 @@ export async function updateVote(
   const docId = await getParticipantDocId(sessionId, participantId);
   if (!docId) return;
   const participantRef = doc(db, 'sessions', sessionId, 'participants', docId);
+  const snap = await getDoc(participantRef);
+  if (snap.exists() && snap.data()?.role === 'observer') return; // Les observateurs ne votent pas
   await updateDoc(participantRef, { vote });
 }
 

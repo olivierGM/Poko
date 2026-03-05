@@ -9,7 +9,9 @@ interface RevealedStatsProps {
 }
 
 export function RevealedStats({ participants }: RevealedStatsProps) {
-  const votes = participants.map((p) => p.vote).filter((v): v is string => v != null && v !== '');
+  // Exclure les observateurs des statistiques : seuls les participants qui votent comptent.
+  const voters = participants.filter((p) => p.role !== 'observer');
+  const votes = voters.map((p) => p.vote).filter((v): v is string => v != null && v !== '');
   if (votes.length === 0) return null;
 
   const voteCounts: Record<string, number> = {};

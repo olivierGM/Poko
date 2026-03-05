@@ -9,19 +9,21 @@ interface ParticipantSeatProps {
 }
 
 export function ParticipantSeat({ participant, phase, isCurrentUser, isDisconnected }: ParticipantSeatProps) {
-  const showVote = phase === 'revealed' || (isCurrentUser && participant.vote != null);
+  const isObs = participant.role === 'observer';
+  const showVote = !isObs && (phase === 'revealed' || (isCurrentUser && participant.vote != null));
   const voteValue = participant.vote;
 
-  const hasVoted = participant.vote != null;
+  const hasVoted = !isObs && participant.vote != null;
 
   return (
-    <div className={`participant-seat ${isDisconnected ? 'participant-seat--parti' : ''}`}>
+    <div className={`participant-seat ${isDisconnected ? 'participant-seat--parti' : ''} ${isObs ? 'participant-seat--observer' : ''}`}>
       <div className="participant-seat__avatar" aria-hidden>
         {participant.name.charAt(0).toUpperCase()}
       </div>
       <span className="participant-seat__name">
         {participant.name || 'Anonyme'}
         {isCurrentUser && <span className="participant-seat__you" title="C’est vous"> (vous)</span>}
+        {isObs && <span className="participant-seat__observer" title="Ne vote pas"> (observateur)</span>}
         {isDisconnected && (
           <span className="participant-seat__parti" title="A quitté la session">
             {' '}(parti)
@@ -32,7 +34,9 @@ export function ParticipantSeat({ participant, phase, isCurrentUser, isDisconnec
         )}
       </span>
       <div className="participant-seat__card">
-        {showVote && voteValue != null ? (
+        {isObs ? (
+          <span className="participant-seat__card-observer" aria-hidden>—</span>
+        ) : showVote && voteValue != null ? (
           <Card value={voteValue} faceDown={false} small />
         ) : participant.vote != null ? (
           <Card value="" faceDown small />

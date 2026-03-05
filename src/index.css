@@ -83,6 +83,15 @@ body {
   background: rgba(255, 255, 255, 0.18);
 }
 
+.layout__user-name--secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.layout__user-name--secondary:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
 .layout__user-label {
   max-width: 20ch;
   word-break: break-word;
@@ -414,6 +423,26 @@ body {
   color: rgba(255, 255, 255, 0.7);
 }
 
+.session-page__role {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.session-page__role-label {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.session-page__observer-hint {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.95rem;
+  text-align: center;
+  margin: 1rem 0;
+}
+
 .session-page__share-url {
   background: rgba(0, 0, 0, 0.3);
   padding: 0.25em 0.5em;
@@ -530,6 +559,18 @@ body {
   font-size: 0.85em;
   font-style: italic;
   font-weight: 600;
+}
+
+.participant-seat__observer {
+  color: rgba(255, 200, 100, 0.95);
+  font-size: 0.85em;
+  font-style: italic;
+}
+
+.participant-seat__card-observer {
+  display: inline-block;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.2em;
 }
 
 .participant-seat--parti .participant-seat__avatar {

@@ -7,7 +7,8 @@ import { HostControls } from '../components/HostControls';
 import { RevealedStats } from '../components/RevealedStats';
 import { useSession } from '../hooks/useSession';
 import type { Participant, Session } from '../hooks/useSession';
-import { addParticipant, updateVote, getOrCreateParticipantId, createSession } from '../lib/session';
+import { addParticipant, updateVote, updateParticipantRole, getOrCreateParticipantId, createSession } from '../lib/session';
+import type { ParticipantRole } from '../lib/session';
 import {
   setPresence,
   removePresence,
@@ -19,17 +20,17 @@ import {
 import { rtdb } from '../lib/firebase';
 
 const DEMO_PARTICIPANTS: Participant[] = [
-  { id: 'd1', participantId: 'demo-1', name: 'Alice', vote: '5', joinedAt: null },
-  { id: 'd2', participantId: 'demo-2', name: 'Bob', vote: '8', joinedAt: null },
-  { id: 'd3', participantId: 'demo-3', name: 'Charlie', vote: '3', joinedAt: null },
-  { id: 'd4', participantId: 'demo-4', name: 'Diana', vote: '13', joinedAt: null },
-  { id: 'd5', participantId: 'demo-5', name: 'Eve', vote: '2', joinedAt: null },
-  { id: 'd6', participantId: 'demo-6', name: 'Frank', vote: '20', joinedAt: null },
-  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null },
-  { id: 'd8', participantId: 'demo-8', name: 'Henry', vote: '5', joinedAt: null },
-  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null },
-  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null },
-  { id: 'd11', participantId: 'demo-11', name: 'Kevin', vote: '1', joinedAt: null },
+  { id: 'd1', participantId: 'demo-1', name: 'Alice', vote: '5', joinedAt: null, role: 'participant' },
+  { id: 'd2', participantId: 'demo-2', name: 'Bob', vote: '8', joinedAt: null, role: 'participant' },
+  { id: 'd3', participantId: 'demo-3', name: 'Charlie', vote: '3', joinedAt: null, role: 'participant' },
+  { id: 'd4', participantId: 'demo-4', name: 'Diana', vote: '13', joinedAt: null, role: 'participant' },
+  { id: 'd5', participantId: 'demo-5', name: 'Eve', vote: '2', joinedAt: null, role: 'participant' },
+  { id: 'd6', participantId: 'demo-6', name: 'Frank', vote: '20', joinedAt: null, role: 'participant' },
+  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null, role: 'participant' },
+  { id: 'd8', participantId: 'demo-8', name: 'Henry', vote: '5', joinedAt: null, role: 'participant' },
+  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null, role: 'participant' },
+  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null, role: 'participant' },
+  { id: 'd11', participantId: 'demo-11', name: 'Kevin', vote: '1', joinedAt: null, role: 'participant' },
 ];
 
 const DEMO_SESSION: Session = {
@@ -112,6 +113,13 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const currentParticipant = participants.find((p) => p.participantId === participantId);
   const myVote = currentParticipant?.vote ?? null;
   const isHost = session?.hostId === participantId;
+  const isObserver = currentParticipant?.role === 'observer';
+
+  async function handleToggleObserver() {
+    if (isDemo || !sessionId) return;
+    const nextRole: ParticipantRole = isObserver ? 'participant' : 'observer';
+    await updateParticipantRole(sessionId, participantId, nextRole);
+  }
 
   function openNewSessionConfirm() {
     if (isDemo) return;
@@ -162,6 +170,14 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
       userName={userName}
       onNameChange={onNameChange}
       onNewSession={!isDemo && isHost ? openNewSessionConfirm : undefined}
+      observerButton={
+        !isDemo && currentParticipant
+          ? {
+              label: isObserver ? 'Participer au vote' : 'Devenir observateur',
+              onClick: handleToggleObserver,
+            }
+          : undefined
+      }
     >
       <div className="session-page">
         {isDemo && (
@@ -200,11 +216,15 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
 
         {!isDemo && <HostControls sessionId={session.id} isHost={isHost} phase={session.phase} />}
 
-        <CardDeck
-          selectedValue={myVote}
-          onSelect={handleSelectCard}
-          disabled={isDemo}
-        />
+        {isObserver ? (
+          <p className="session-page__observer-hint">En mode observateur, vous voyez la session sans voter.</p>
+        ) : (
+          <CardDeck
+            selectedValue={myVote}
+            onSelect={handleSelectCard}
+            disabled={isDemo}
+          />
+        )}
 
         {showNewSessionConfirm && (
           <div className="confirm-modal-overlay" role="dialog" aria-labelledby="confirm-new-session-title">

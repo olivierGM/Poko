@@ -13,6 +13,8 @@ export interface Session {
   phase: SessionPhase;
 }
 
+export type ParticipantRole = 'participant' | 'observer';
+
 export interface Participant {
   id: string;
   participantId: string;
@@ -20,6 +22,7 @@ export interface Participant {
   vote: string | null;
   joinedAt: unknown;
   lastSeen?: unknown;
+  role?: ParticipantRole;
 }
 
 export function useSession(sessionId: string | null) {
@@ -78,6 +81,7 @@ export function useSession(sessionId: string | null) {
             name: data.name ?? '',
             vote: data.vote ?? null,
             joinedAt: data.joinedAt,
+            role: (data.role === 'observer' ? 'observer' : 'participant') as ParticipantRole,
             lastSeen: data.lastSeen,
           };
         });

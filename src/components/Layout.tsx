@@ -7,9 +7,11 @@ interface LayoutProps {
   userName?: string;
   onNameChange?: (name: string) => void;
   onNewSession?: () => void;
+  /** Bouton « Devenir observateur » / « Participer au vote » affiché à gauche de « Nouvelle partie » */
+  observerButton?: { label: string; onClick: () => void };
 }
 
-export function Layout({ children, title, userName, onNameChange, onNewSession }: LayoutProps) {
+export function Layout({ children, title, userName, onNameChange, onNewSession, observerButton }: LayoutProps) {
   const [editingName, setEditingName] = useState(false);
   const [editValue, setEditValue] = useState(userName ?? '');
 
@@ -32,6 +34,18 @@ export function Layout({ children, title, userName, onNameChange, onNewSession }
       <header className="layout__header">
         <h1 className="layout__title">{title ?? 'Poko'}</h1>
         <div className="layout__header-actions">
+          {observerButton && (
+            <div className="layout__user">
+              <button
+                type="button"
+                className="layout__user-name layout__user-name--secondary"
+                onClick={observerButton.onClick}
+                title={observerButton.label}
+              >
+                <span className="layout__user-label">{observerButton.label}</span>
+              </button>
+            </div>
+          )}
           {onNewSession && (
             <div className="layout__user">
               <button
