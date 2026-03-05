@@ -75,11 +75,12 @@ export function connectPresence(): void {
   if (rtdb) goOnline(rtdb);
 }
 
-const STALE_AFTER_MS = 8_000;
+/** Délai avant de considérer un participant « parti » (évite les « parti » qui clignotent). */
+const STALE_AFTER_MS = 60_000; // 1 minute
 
 /**
  * Retourne l'ensemble des participantId actuellement connectés à la session.
- * On considère « connecté » uniquement si lastSeen est à jour (< 8 s), pour gérer
+ * On considère « connecté » si lastSeen est à jour (dans les STALE_AFTER_MS), pour gérer
  * les fermetures d’onglet où le navigateur n’exécute pas nos handlers.
  */
 export function usePresence(sessionId: string | null): Set<string> {

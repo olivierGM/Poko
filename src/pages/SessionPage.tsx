@@ -41,6 +41,47 @@ const DEMO_SESSION: Session = {
   currentStory: '',
 };
 
+/** Déduplique par nom : évite d'afficher plusieurs fois la même personne (ex. après leave/rejoin avec un autre participantId). */
+function dedupeParticipantsByName(
+  participants: Participant[],
+  connectedParticipantIds: Set<string>,
+  currentParticipantId: string | null
+): Participant[] {
+  const byName = new Map<string, Participant[]>();
+  for (const p of participants) {
+    const name = (p.name || '').trim() || 'Anonyme';
+    if (!byName.has(name)) byName.set(name, []);
+    byName.get(name)!.push(p);
+  }
+  const result: Participant[] = [];
+  for (const [, list] of byName) {
+    if (list.length === 1) {
+      result.push(list[0]);
+    } else {
+      const sorted = [...list].sort((a, b) => {
+        if (currentParticipantId) {
+          const aMe = a.participantId === currentParticipantId;
+          const bMe = b.participantId === currentParticipantId;
+          if (aMe !== bMe) return aMe ? -1 : 1;
+        }
+        const aConn = connectedParticipantIds.has(a.participantId);
+        const bConn = connectedParticipantIds.has(b.participantId);
+        if (aConn !== bConn) return aConn ? -1 : 1;
+        const ta = a.joinedAt as { toMillis?: () => number } | null;
+        const tb = b.joinedAt as { toMillis?: () => number } | null;
+        return (ta?.toMillis?.() ?? 0) - (tb?.toMillis?.() ?? 0);
+      });
+      result.push(sorted[0]);
+    }
+  }
+  result.sort((a, b) => {
+    const ta = a.joinedAt as { toMillis?: () => number } | null;
+    const tb = b.joinedAt as { toMillis?: () => number } | null;
+    return (ta?.toMillis?.() ?? 0) - (tb?.toMillis?.() ?? 0);
+  });
+  return result;
+}
+
 interface SessionPageProps {
   userName: string;
   onNameChange?: (name: string) => void;
@@ -65,6 +106,9 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const connectedParticipantIds = isDemo
     ? new Set(participants.map((p) => p.participantId))
     : rtdbConnected;
+
+  const displayedParticipants =
+    isDemo ? participants : dedupeParticipantsByName(participants, connectedParticipantIds, participantId);
 
   const displayName =
     searchParams.get('testName')?.trim().slice(0, 20) || userName.trim().slice(0, 20);
@@ -110,7 +154,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
     };
   }, [isDemo]);
 
-  const currentParticipant = participants.find((p) => p.participantId === participantId);
+  const currentParticipant = displayedParticipants.find((p) => p.participantId === participantId);
   const myVote = currentParticipant?.vote ?? null;
   const isHost = session?.hostId === participantId;
   const isObserver = currentParticipant?.role === 'observer';
@@ -204,14 +248,14 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
         )}
 
         <PokerTable
-          participants={participants}
+          participants={displayedParticipants}
           phase={session.phase}
           currentParticipantId={isDemo ? null : participantId}
           connectedParticipantIds={connectedParticipantIds}
         />
 
         {session.phase === 'revealed' && (
-          <RevealedStats participants={participants} />
+          <RevealedStats participants={displayedParticipants} />
         )}
 
         {!isDemo && <HostControls sessionId={session.id} isHost={isHost} phase={session.phase} />}

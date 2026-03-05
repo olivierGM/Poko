@@ -32,7 +32,15 @@ export function Layout({ children, title, userName, onNameChange, onNewSession, 
   return (
     <div className="layout">
       <header className="layout__header">
-        <h1 className="layout__title">{title ?? 'Poko'}</h1>
+        <h1 className="layout__title">
+          {title ?? 'Poko'}
+          {import.meta.env.DEV && (import.meta.env.VITE_DEV_LABEL as string) && (
+            <span className="layout__title-dev" title={(import.meta.env.VITE_DEV_LABEL as string) || undefined}>
+              {' '}
+              <span className="layout__title-dev-badge">{import.meta.env.VITE_DEV_LABEL as string}</span>
+            </span>
+          )}
+        </h1>
         <div className="layout__header-actions">
           {observerButton && (
             <div className="layout__user">
