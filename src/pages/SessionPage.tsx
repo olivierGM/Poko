@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { PokerTable } from '../components/PokerTable';
+import { ObserversSide } from '../components/ObserversSide';
 import { CardDeck } from '../components/CardDeck';
 import { HostControls } from '../components/HostControls';
 import { RevealedStats } from '../components/RevealedStats';
@@ -26,10 +27,10 @@ const DEMO_PARTICIPANTS: Participant[] = [
   { id: 'd4', participantId: 'demo-4', name: 'Diana', vote: '13', joinedAt: null, role: 'participant' },
   { id: 'd5', participantId: 'demo-5', name: 'Eve', vote: '2', joinedAt: null, role: 'participant' },
   { id: 'd6', participantId: 'demo-6', name: 'Frank', vote: '20', joinedAt: null, role: 'participant' },
-  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null, role: 'participant' },
+  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null, role: 'observer' },
   { id: 'd8', participantId: 'demo-8', name: 'Henry', vote: '5', joinedAt: null, role: 'participant' },
-  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null, role: 'participant' },
-  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null, role: 'participant' },
+  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null, role: 'observer' },
+  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null, role: 'observer' },
   { id: 'd11', participantId: 'demo-11', name: 'Kevin', vote: '1', joinedAt: null, role: 'participant' },
 ];
 
@@ -203,12 +204,28 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
           </div>
         )}
 
-        <PokerTable
-          participants={participants}
-          phase={session.phase}
-          currentParticipantId={isDemo ? null : participantId}
-          connectedParticipantIds={connectedParticipantIds}
-        />
+        {(() => {
+          const voters = participants.filter((p) => p.role !== 'observer');
+          const observers = participants.filter((p) => p.role === 'observer');
+          return (
+            <div className="session-page__table-area">
+              <ObserversSide
+                observers={observers}
+                currentParticipantId={isDemo ? null : participantId}
+                connectedParticipantIds={connectedParticipantIds}
+                side="left"
+              />
+              <div className="session-page__table-area__center">
+                <PokerTable
+                  participants={voters}
+                  phase={session.phase}
+                  currentParticipantId={isDemo ? null : participantId}
+                  connectedParticipantIds={connectedParticipantIds}
+                />
+              </div>
+            </div>
+          );
+        })()}
 
         {session.phase === 'revealed' && (
           <RevealedStats participants={participants} />

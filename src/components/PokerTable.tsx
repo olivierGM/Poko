@@ -16,11 +16,13 @@ export function PokerTable({
   currentParticipantId,
   connectedParticipantIds = new Set(),
 }: PokerTableProps) {
-  const count = participants.length;
+  // À la table : uniquement les participants qui votent (pas les observateurs)
+  const voters = participants.filter((p) => p.role !== 'observer');
+  const count = voters.length;
   const positions = getSeatPositions(count);
   const manySeats = count >= 8;
 
-  const partiNames = participants
+  const partiNames = voters
     .filter((p) => {
       const isCurrent = p.participantId === currentParticipantId;
       const hasPresenceData = connectedParticipantIds.size > 0;
@@ -35,7 +37,7 @@ export function PokerTable({
     <div className={`poker-table-container ${manySeats ? 'poker-table-container--many' : ''}`}>
       <div className="poker-table">
         <div className="poker-table__surface" aria-hidden />
-        {participants.map((participant, index) => {
+        {voters.map((participant, index) => {
           const isCurrent = participant.participantId === currentParticipantId;
           const hasPresenceData = connectedParticipantIds.size > 0;
           const isDisconnected =

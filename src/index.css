@@ -451,6 +451,110 @@ body {
   word-break: break-all;
 }
 
+.session-page__table-area {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  min-height: 320px;
+}
+
+/* Table toujours centrée */
+.session-page__table-area__center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Observateurs à gauche, en position absolue pour ne pas décaler la table */
+.observers-side {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.observers-side__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.observers-side__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.observers-side__item {
+  margin: 0;
+}
+
+.observers-side__chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.observers-side__chip--parti .observers-side__avatar {
+  opacity: 0.5;
+}
+
+.observers-side__chip--parti .observers-side__name {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.observers-side__avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: rgba(255, 200, 100, 0.4);
+  border: 1px solid rgba(255, 200, 100, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 220, 150, 0.95);
+}
+
+.observers-side__name {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.observers-side__you {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.observers-side__parti {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75em;
+}
+
 /* Poker table */
 .poker-table-container {
   width: 100%;
