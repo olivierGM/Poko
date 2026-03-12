@@ -2,14 +2,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { PokerTable } from '../components/PokerTable';
-import { ObserversSide } from '../components/ObserversSide';
 import { CardDeck } from '../components/CardDeck';
 import { HostControls } from '../components/HostControls';
 import { RevealedStats } from '../components/RevealedStats';
 import { useSession } from '../hooks/useSession';
 import type { Participant, Session } from '../hooks/useSession';
-import { addParticipant, updateVote, updateParticipantRole, getOrCreateParticipantId, createSession } from '../lib/session';
-import type { ParticipantRole } from '../lib/session';
+import { addParticipant, updateVote, getOrCreateParticipantId, createSession } from '../lib/session';
 import {
   setPresence,
   removePresence,
@@ -21,17 +19,17 @@ import {
 import { rtdb } from '../lib/firebase';
 
 const DEMO_PARTICIPANTS: Participant[] = [
-  { id: 'd1', participantId: 'demo-1', name: 'Alice', vote: '5', joinedAt: null, role: 'participant' },
-  { id: 'd2', participantId: 'demo-2', name: 'Bob', vote: '8', joinedAt: null, role: 'participant' },
-  { id: 'd3', participantId: 'demo-3', name: 'Charlie', vote: '3', joinedAt: null, role: 'participant' },
-  { id: 'd4', participantId: 'demo-4', name: 'Diana', vote: '13', joinedAt: null, role: 'participant' },
-  { id: 'd5', participantId: 'demo-5', name: 'Eve', vote: '2', joinedAt: null, role: 'participant' },
-  { id: 'd6', participantId: 'demo-6', name: 'Frank', vote: '20', joinedAt: null, role: 'participant' },
-  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null, role: 'observer' },
-  { id: 'd8', participantId: 'demo-8', name: 'Henry', vote: '5', joinedAt: null, role: 'participant' },
-  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null, role: 'observer' },
-  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null, role: 'observer' },
-  { id: 'd11', participantId: 'demo-11', name: 'Kevin', vote: '1', joinedAt: null, role: 'participant' },
+  { id: 'd1', participantId: 'demo-1', name: 'Alice', vote: '5', joinedAt: null },
+  { id: 'd2', participantId: 'demo-2', name: 'Bob', vote: '8', joinedAt: null },
+  { id: 'd3', participantId: 'demo-3', name: 'Charlie', vote: '3', joinedAt: null },
+  { id: 'd4', participantId: 'demo-4', name: 'Diana', vote: '13', joinedAt: null },
+  { id: 'd5', participantId: 'demo-5', name: 'Eve', vote: '2', joinedAt: null },
+  { id: 'd6', participantId: 'demo-6', name: 'Frank', vote: '20', joinedAt: null },
+  { id: 'd7', participantId: 'demo-7', name: 'Grace', vote: '?', joinedAt: null },
+  { id: 'd8', participantId: 'demo-8', name: 'Henry', vote: '5', joinedAt: null },
+  { id: 'd9', participantId: 'demo-9', name: 'Iris', vote: '8', joinedAt: null },
+  { id: 'd10', participantId: 'demo-10', name: 'Julia', vote: 'break', joinedAt: null },
+  { id: 'd11', participantId: 'demo-11', name: 'Kevin', vote: '1', joinedAt: null },
 ];
 
 const DEMO_SESSION: Session = {
@@ -41,47 +39,6 @@ const DEMO_SESSION: Session = {
   phase: 'revealed',
   currentStory: '',
 };
-
-/** Déduplique par nom : évite d'afficher plusieurs fois la même personne (ex. après leave/rejoin avec un autre participantId). */
-function dedupeParticipantsByName(
-  participants: Participant[],
-  connectedParticipantIds: Set<string>,
-  currentParticipantId: string | null
-): Participant[] {
-  const byName = new Map<string, Participant[]>();
-  for (const p of participants) {
-    const name = (p.name || '').trim() || 'Anonyme';
-    if (!byName.has(name)) byName.set(name, []);
-    byName.get(name)!.push(p);
-  }
-  const result: Participant[] = [];
-  for (const [, list] of byName) {
-    if (list.length === 1) {
-      result.push(list[0]);
-    } else {
-      const sorted = [...list].sort((a, b) => {
-        if (currentParticipantId) {
-          const aMe = a.participantId === currentParticipantId;
-          const bMe = b.participantId === currentParticipantId;
-          if (aMe !== bMe) return aMe ? -1 : 1;
-        }
-        const aConn = connectedParticipantIds.has(a.participantId);
-        const bConn = connectedParticipantIds.has(b.participantId);
-        if (aConn !== bConn) return aConn ? -1 : 1;
-        const ta = a.joinedAt as { toMillis?: () => number } | null;
-        const tb = b.joinedAt as { toMillis?: () => number } | null;
-        return (ta?.toMillis?.() ?? 0) - (tb?.toMillis?.() ?? 0);
-      });
-      result.push(sorted[0]);
-    }
-  }
-  result.sort((a, b) => {
-    const ta = a.joinedAt as { toMillis?: () => number } | null;
-    const tb = b.joinedAt as { toMillis?: () => number } | null;
-    return (ta?.toMillis?.() ?? 0) - (tb?.toMillis?.() ?? 0);
-  });
-  return result;
-}
 
 interface SessionPageProps {
   userName: string;
@@ -107,9 +64,6 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const connectedParticipantIds = isDemo
     ? new Set(participants.map((p) => p.participantId))
     : rtdbConnected;
-
-  const displayedParticipants =
-    isDemo ? participants : dedupeParticipantsByName(participants, connectedParticipantIds, participantId);
 
   const displayName =
     searchParams.get('testName')?.trim().slice(0, 20) || userName.trim().slice(0, 20);
@@ -155,16 +109,9 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
     };
   }, [isDemo]);
 
-  const currentParticipant = displayedParticipants.find((p) => p.participantId === participantId);
+  const currentParticipant = participants.find((p) => p.participantId === participantId);
   const myVote = currentParticipant?.vote ?? null;
   const isHost = session?.hostId === participantId;
-  const isObserver = currentParticipant?.role === 'observer';
-
-  async function handleToggleObserver() {
-    if (isDemo || !sessionId) return;
-    const nextRole: ParticipantRole = isObserver ? 'participant' : 'observer';
-    await updateParticipantRole(sessionId, participantId, nextRole);
-  }
 
   function openNewSessionConfirm() {
     if (isDemo) return;
@@ -215,14 +162,6 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
       userName={userName}
       onNameChange={onNameChange}
       onNewSession={!isDemo && isHost ? openNewSessionConfirm : undefined}
-      observerButton={
-        !isDemo && currentParticipant
-          ? {
-              label: isObserver ? 'Participer au vote' : 'Devenir observateur',
-              onClick: handleToggleObserver,
-            }
-          : undefined
-      }
     >
       <div className="session-page">
         {isDemo && (
@@ -248,44 +187,26 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
           </div>
         )}
 
-{(() => {
-          const voters = displayedParticipants.filter((p) => p.role !== 'observer');
-          const observers = displayedParticipants.filter((p) => p.role === 'observer');
-          return (
-            <div className="session-page__table-area">
-              <ObserversSide
-                observers={observers}
-                currentParticipantId={isDemo ? null : participantId}
-                connectedParticipantIds={connectedParticipantIds}
-                side="left"
-              />
-              <div className="session-page__table-area__center">
-                <PokerTable
-                  participants={voters}
-                  phase={session.phase}
-                  currentParticipantId={isDemo ? null : participantId}
-                  connectedParticipantIds={connectedParticipantIds}
-                />
-              </div>
-            </div>
-          );
-        })()}
+        <PokerTable
+          participants={participants}
+          phase={session.phase}
+          currentParticipantId={isDemo ? null : participantId}
+          connectedParticipantIds={connectedParticipantIds}
+          sessionId={isDemo ? null : session.id}
+        />
 
         {session.phase === 'revealed' && (
-          <RevealedStats participants={displayedParticipants} />
+          <RevealedStats participants={participants} />
         )}
 
-        {!isDemo && <HostControls sessionId={session.id} isHost={isHost} phase={session.phase} />}
-
-        {isObserver ? (
-          <p className="session-page__observer-hint">En mode observateur, vous voyez la session sans voter.</p>
-        ) : (
+        <div className="session-page__bottom-bar">
+          {!isDemo && <HostControls sessionId={session.id} isHost={isHost} phase={session.phase} />}
           <CardDeck
             selectedValue={myVote}
             onSelect={handleSelectCard}
             disabled={isDemo}
           />
-        )}
+        </div>
 
         {showNewSessionConfirm && (
           <div className="confirm-modal-overlay" role="dialog" aria-labelledby="confirm-new-session-title">

@@ -15,13 +15,16 @@ export function ParticipantSeat({ participant, phase, isCurrentUser, isDisconnec
 
   const hasVoted = !isObs && participant.vote != null;
 
+  const displayName = participant.name ?? '';
+  const avatarLetter = (displayName || '?').charAt(0).toUpperCase();
+
   return (
     <div className={`participant-seat ${isDisconnected ? 'participant-seat--parti' : ''} ${isObs ? 'participant-seat--observer' : ''}`}>
       <div className="participant-seat__avatar" aria-hidden>
-        {participant.name.charAt(0).toUpperCase()}
+        {avatarLetter}
       </div>
       <span className="participant-seat__name">
-        {participant.name || 'Anonyme'}
+        {displayName || 'Anonyme'}
         {isCurrentUser && <span className="participant-seat__you" title="C’est vous"> (vous)</span>}
         {isObs && <span className="participant-seat__observer" title="Ne vote pas"> (observateur)</span>}
         {isDisconnected && (

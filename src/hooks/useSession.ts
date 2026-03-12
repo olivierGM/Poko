@@ -103,7 +103,7 @@ export function useSession(sessionId: string | null) {
           const ta = a.joinedAt as { toMillis?: () => number } | null;
           const tb = b.joinedAt as { toMillis?: () => number } | null;
           if (ta?.toMillis && tb?.toMillis) return ta.toMillis() - tb.toMillis();
-          return 0;
+          return (a.participantId || a.id).localeCompare(b.participantId || b.id);
         });
         setParticipants(deduped);
         setLoading(false);

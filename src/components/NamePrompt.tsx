@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 
 interface NamePromptProps {
@@ -7,10 +7,12 @@ interface NamePromptProps {
 
 export function NamePrompt({ onSubmit }: NamePromptProps) {
   const [value, setValue] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    const trimmed = value.trim().slice(0, 20);
+    const raw = inputRef.current?.value ?? value;
+    const trimmed = raw.trim().slice(0, 20);
     if (trimmed) onSubmit(trimmed);
   }
 
@@ -23,6 +25,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
         <p className="name-prompt__hint">Ton nom sera affiché aux autres participants.</p>
         <form onSubmit={handleSubmit} className="name-prompt__form">
           <input
+            ref={inputRef}
             type="text"
             className="input name-prompt__input"
             placeholder="Ton prénom ou pseudo"
@@ -32,7 +35,7 @@ export function NamePrompt({ onSubmit }: NamePromptProps) {
             autoFocus
             autoComplete="username"
           />
-          <button type="submit" className="button button--primary" disabled={!value.trim()}>
+          <button type="submit" className="button button--primary">
             Continuer
           </button>
         </form>
