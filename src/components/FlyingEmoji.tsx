@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
 const FLY_DURATION_MS = 600;
-/** Délai max avant disparition forcée (sécurité côté expéditeur et récepteur). */
 const FLY_MAX_VISIBLE_MS = 2000;
 
 interface FlyingEmojiProps {

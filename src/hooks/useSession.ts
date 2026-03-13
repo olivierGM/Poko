@@ -9,6 +9,8 @@ export interface Session {
   id: string;
   createdAt: unknown;
   hostId: string;
+  /** IDs des co-hôtes (peuvent révéler les cartes et lancer un nouveau tour). */
+  coHostIds?: string[];
   currentStory?: string;
   phase: SessionPhase;
 }
@@ -59,6 +61,7 @@ export function useSession(sessionId: string | null) {
           id: snap.id,
           createdAt: data.createdAt,
           hostId: data.hostId ?? '',
+          coHostIds: Array.isArray(data.coHostIds) ? data.coHostIds : [],
           currentStory: data.currentStory,
           phase: (data.phase as SessionPhase) ?? 'voting',
         });

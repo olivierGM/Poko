@@ -105,6 +105,12 @@ export async function updateVote(
   await updateDoc(participantRef, { vote });
 }
 
+/** Met à jour la liste des co-hôtes (participantIds). Réservé à l’hôte. */
+export async function updateCoHosts(sessionId: string, coHostIds: string[]): Promise<void> {
+  const sessionRef = doc(db, 'sessions', sessionId);
+  await updateDoc(sessionRef, { coHostIds });
+}
+
 export async function revealCards(sessionId: string): Promise<void> {
   const sessionRef = doc(db, 'sessions', sessionId);
   await updateDoc(sessionRef, { phase: 'revealed' });

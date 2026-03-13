@@ -1,4 +1,4 @@
-import type { Participant } from '../hooks/useSession';
+import type { Participant, ParticipantRole } from '../hooks/useSession';
 
 interface ObserversSideProps {
   observers: Participant[];
@@ -6,6 +6,8 @@ interface ObserversSideProps {
   connectedParticipantIds: Set<string>;
   /** 'left' | 'right' pour le positionnement visuel (aria-label, etc.) */
   side: 'left' | 'right';
+  isHost?: boolean;
+  onSetRole?: (participantId: string, role: ParticipantRole) => void;
 }
 
 export function ObserversSide({
@@ -13,6 +15,8 @@ export function ObserversSide({
   currentParticipantId,
   connectedParticipantIds,
   side,
+  isHost = false,
+  onSetRole,
 }: ObserversSideProps) {
   if (observers.length === 0) return null;
 
@@ -44,6 +48,16 @@ export function ObserversSide({
                   {isDisconnected && <span className="observers-side__parti"> (parti)</span>}
                 </span>
               </div>
+              {isHost && onSetRole && (
+                <button
+                  type="button"
+                  className="button button--small observers-side__action"
+                  onClick={() => onSetRole(participant.participantId, 'participant')}
+                  title="Passer en participant"
+                >
+                  Participant
+                </button>
+              )}
             </li>
           );
         })}

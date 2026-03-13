@@ -5,13 +5,12 @@ import { ParticipantSeat } from './ParticipantSeat';
 import { EmojiReactionBar } from './EmojiReactionBar';
 import { FlyingEmoji } from './FlyingEmoji';
 import { sendReaction, useReactions } from '../lib/reactions';
+import type { Participant } from '../hooks/useSession';
+import type { ParticipantRole, SessionPhase } from '../hooks/useSession';
 
 const LOCAL_RATE_LIMIT_COUNT = 5;
 const LOCAL_RATE_LIMIT_WINDOW_MS = 2500;
-/** Durée de l’animation d’emoji (doit correspondre à FlyingEmoji). On ne retire un emoji de la liste qu’après ce délai. */
 const FLY_DURATION_MS = 600;
-import type { Participant } from '../hooks/useSession';
-import type { SessionPhase } from '../hooks/useSession';
 
 interface FlyingEmojiItem {
   id: string;
@@ -28,10 +27,12 @@ interface PokerTableProps {
   participants: Participant[];
   phase: SessionPhase;
   currentParticipantId: string | null;
-  /** IDs des participants actuellement connectés (Realtime Database). Absent = déconnecté. */
   connectedParticipantIds?: Set<string>;
-  /** Session ID pour synchroniser les réactions (optionnel, ex. mode démo sans RTDB). */
   sessionId?: string | null;
+  isHost?: boolean;
+  coHostIds?: string[];
+  onHostSetParticipantRole?: (participantId: string, role: ParticipantRole) => void;
+  onToggleCoHost?: (participantId: string) => void;
 }
 
 export function PokerTable({
@@ -40,12 +41,16 @@ export function PokerTable({
   currentParticipantId,
   connectedParticipantIds = new Set(),
   sessionId = null,
+  isHost = false,
+  coHostIds = [],
+  onHostSetParticipantRole,
+  onToggleCoHost,
 }: PokerTableProps) {
-  // À la table : uniquement les participants qui votent (pas les observateurs)
-  const voters = participants.filter((p) => p.role !== 'observer');
-  const count = voters.length;
+  const [roleControlParticipantId, setRoleControlParticipantId] = useState<string | null>(null);
+  const count = participants.length;
   const positions = getSeatPositions(count);
   const manySeats = count >= 8;
+
   const seatRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const [hoveredParticipantId, setHoveredParticipantId] = useState<string | null>(null);
   const [flyingEmojis, setFlyingEmojis] = useState<FlyingEmojiItem[]>([]);
@@ -55,7 +60,7 @@ export function PokerTable({
 
   const { reactions: syncedReactions, markAnimated } = useReactions(sessionId);
 
-  const partiNames = voters
+  const partiNames = participants
     .filter((p) => {
       const isCurrent = p.participantId === currentParticipantId;
       const hasPresenceData = connectedParticipantIds.size > 0;
@@ -79,7 +84,6 @@ export function PokerTable({
     setFlyingEmojis((prev) => {
       const next = [...prev, withTimestamp];
       const now = Date.now();
-      // Ne retirer que les emojis dont l’animation est terminée (évite disparition en plein vol au spam)
       const stillFlying = next.filter((f) => now - f.addedAt <= FLY_DURATION_MS);
       return stillFlying.length <= 50 ? stillFlying : stillFlying.slice(-50);
     });
@@ -95,7 +99,6 @@ export function PokerTable({
     const margin = 24;
     for (const r of syncedReactions) {
       if (addedReactionIdsRef.current.has(r.id)) continue;
-      // Ne pas réafficher nos propres envois : on les a déjà ajoutés dans handleEmojiSelect, sinon doublon côté expéditeur
       if (currentParticipantId && r.fromParticipantId === currentParticipantId) continue;
       const participant = participants.find((p) => p.participantId === r.toParticipantId);
       if (!participant) continue;
@@ -104,13 +107,12 @@ export function PokerTable({
         pending.push(r);
         continue;
       }
-      const targetIndex = voters.indexOf(participant);
+      const targetIndex = participants.indexOf(participant);
       const fromLeft = targetIndex < count / 2;
       const avatarEl = wrapper.querySelector<HTMLElement>('.participant-seat__avatar');
       const rect = avatarEl?.getBoundingClientRect() ?? wrapper.getBoundingClientRect();
       const endX = rect.left + rect.width / 2;
       const endY = rect.top + rect.height / 2;
-      // Départ : position de l’émetteur (sur la table) si dispo, sinon bord de l’écran
       let startX: number;
       let startY: number;
       const senderWrapper = seatRefs.current[r.fromParticipantId];
@@ -124,21 +126,13 @@ export function PokerTable({
         startY = window.innerHeight / 2;
       }
       addedReactionIdsRef.current.add(r.id);
-      addFlying({
-        id: r.id,
-        emoji: r.emoji,
-        fromLeft,
-        startX,
-        startY,
-        endX,
-        endY,
-      });
+      addFlying({ id: r.id, emoji: r.emoji, fromLeft, startX, startY, endX, endY });
     }
     if (pending.length > 0) {
       const t = setTimeout(() => setRefResolveTick((n) => n + 1), 80);
       return () => clearTimeout(t);
     }
-  }, [syncedReactions, participants, voters, count, refResolveTick]);
+  }, [syncedReactions, participants, count, currentParticipantId, refResolveTick]);
 
   const handleEmojiSelect = async (participantId: string, index: number, emoji: string) => {
     const wrapper = seatRefs.current[participantId];
@@ -149,7 +143,6 @@ export function PokerTable({
     const endY = rect.top + rect.height / 2;
     const fromLeft = index < count / 2;
     const margin = 24;
-    // Départ : ma position sur la table (avatar) si dispo, sinon bord de l’écran
     let startX: number;
     let startY: number;
     if (currentParticipantId) {
@@ -196,7 +189,7 @@ export function PokerTable({
     <div className={`poker-table-container ${manySeats ? 'poker-table-container--many' : ''}`}>
       <div className="poker-table">
         <div className="poker-table__surface" aria-hidden />
-        {voters.map((participant, index) => {
+        {participants.map((participant, index) => {
           const isCurrent = participant.participantId === currentParticipantId;
           const hasPresenceData = connectedParticipantIds.size > 0;
           const isDisconnected =
@@ -222,7 +215,7 @@ export function PokerTable({
               >
                 <div className="participant-seat-wrapper__emoji-bar-slot">
                   {showReaction && isHovered && (
-                    <div className="participant-seat-wrapper__emoji-bar">
+                    <div className="participant-seat-wrapper__emoji-bar" onClick={(e) => e.stopPropagation()}>
                       <EmojiReactionBar
                         onSelect={(emoji) => handleEmojiSelect(participant.participantId, index, emoji)}
                       />
@@ -234,6 +227,12 @@ export function PokerTable({
                   phase={phase}
                   isCurrentUser={isCurrent}
                   isDisconnected={isDisconnected}
+                  showRoleControl={isHost && (!!onHostSetParticipantRole || !!onToggleCoHost)}
+                  isRoleControlOpen={roleControlParticipantId === participant.participantId}
+                  onToggleRoleControl={() => setRoleControlParticipantId((prev) => (prev === participant.participantId ? null : participant.participantId))}
+                  onRoleChange={onHostSetParticipantRole}
+                  isCoHost={coHostIds.includes(participant.participantId)}
+                  onToggleCoHost={onToggleCoHost}
                 />
               </div>
             </div>

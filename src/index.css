@@ -469,6 +469,61 @@ body {
   word-break: break-all;
 }
 
+/* Gestion des co-hôtes (visible par l’hôte) */
+.cohosts-manager {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  max-width: 560px;
+}
+
+.cohosts-manager__title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.25rem;
+}
+
+.cohosts-manager__hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 0.5rem 0;
+}
+
+.cohosts-manager__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.cohosts-manager__item {
+  margin: 0;
+}
+
+.cohosts-manager__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cohosts-manager__input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.cohosts-manager__name {
+  user-select: none;
+}
+
+/* Zone table + observateurs (observateurs à gauche) */
 .session-page__table-area {
   position: relative;
   width: 100%;
@@ -476,7 +531,6 @@ body {
   min-height: 320px;
 }
 
-/* Table toujours centrée */
 .session-page__table-area__center {
   display: flex;
   justify-content: center;
@@ -484,7 +538,7 @@ body {
   width: 100%;
 }
 
-/* Observateurs à gauche, en position absolue pour ne pas décaler la table */
+/* Observateurs à gauche de la table */
 .observers-side {
   position: absolute;
   left: 0;
@@ -519,6 +573,9 @@ body {
 
 .observers-side__item {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .observers-side__chip {
@@ -573,20 +630,23 @@ body {
   font-size: 0.75em;
 }
 
+.observers-side__action {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  align-self: flex-start;
+}
+
 /* Poker table */
 .poker-table-container {
   width: 100%;
   max-width: 560px;
   aspect-ratio: 1.6;
   position: relative;
-  /* Réserve de l’espace en dessous pour les sièges qui dépassent (slot emoji + carte), évite que le compte rendu du vote les recouvre */
-  margin-bottom: 5rem;
 }
 
 .poker-table-container--many {
   max-width: min(90vw, 720px);
   aspect-ratio: 1.5;
-  margin-bottom: 5rem;
 }
 
 .poker-table-container--many .participant-seat__avatar {
@@ -608,7 +668,6 @@ body {
 
 .poker-table-container--many .participant-seat-wrapper {
   min-width: 56px;
-  max-width: 140px;
 }
 
 .poker-table {
@@ -633,10 +692,74 @@ body {
 .participant-seat-wrapper {
   position: absolute;
   min-width: 80px;
-  max-width: 200px;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.participant-seat-wrapper__hover-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 0;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.participant-seat-wrapper__emoji-bar-slot {
+  flex-shrink: 0;
+  height: 2.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.participant-seat-wrapper__emoji-bar {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.emoji-reaction-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem 0.4rem;
+  background: #1976d2;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.emoji-reaction-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.emoji-reaction-bar__btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.2);
+}
+
+.emoji-reaction-bar__btn:active {
+  transform: scale(0.95);
+}
+
+.flying-emoji {
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .participant-seat {
@@ -715,74 +838,40 @@ body {
   justify-content: center;
 }
 
-/* Emoji reaction bar (au survol d’un autre participant) */
-/* Ne pas override position: absolute du wrapper (sinon les sièges s’empilent) */
-
-.participant-seat-wrapper__hover-zone {
+.participant-seat__role-control {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 0.35rem;
-  min-height: 0;
-  max-width: 100%;
-  min-width: 0;
-}
-
-/* Emplacement fixe pour la barre d’emoji : le siège ne bouge pas au survol */
-.participant-seat-wrapper__emoji-bar-slot {
-  flex-shrink: 0;
-  height: 2.5rem;
-  display: flex;
-  align-items: flex-end;
+  flex-wrap: wrap;
   justify-content: center;
+  margin-top: 0.5rem;
 }
 
-.participant-seat-wrapper__emoji-bar {
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.emoji-reaction-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.2rem;
-  padding: 0.25rem 0.4rem;
-  background: #1976d2;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
-}
-
-.emoji-reaction-bar__btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  font-size: 1.1rem;
-  line-height: 1;
-  background: transparent;
-  border: none;
-  border-radius: 6px;
+.participant-seat--role-clickable {
   cursor: pointer;
-  transition: transform 0.15s, background 0.15s;
 }
 
-.emoji-reaction-bar__btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: scale(1.2);
+.participant-seat__cohost {
+  color: rgba(255, 200, 80, 0.95);
+  font-size: 0.8em;
 }
 
-.emoji-reaction-bar__btn:active {
-  transform: scale(0.95);
+.participant-seat__role-btn--active {
+  background: rgba(255, 200, 80, 0.25);
+  border-color: rgba(255, 200, 80, 0.5);
+  color: rgba(255, 220, 120, 1);
 }
 
-/* Emoji volant : position et animation gérées en JS (Web Animations API) */
-.flying-emoji {
-  pointer-events: none;
-  z-index: 9999;
+.participant-seat__role-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-right: 0.15rem;
+}
+
+.participant-seat__role-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  min-height: 28px;
 }
 
 /* Cards */
@@ -839,43 +928,30 @@ body {
   font-size: 1.25rem;
 }
 
-/* Bottom bar (host controls + card deck) */
-.session-page__bottom-bar {
+/* Card deck (bottom bar) */
+.card-deck {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 0.75rem 1rem;
+  padding: 1rem 0.75rem;
   background: rgba(0, 0, 0, 0.5);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.session-page__bottom-bar .host-controls {
-  margin: 0;
-  flex-shrink: 0;
-}
-
-.session-page__bottom-bar .card-deck {
-  flex-shrink: 0;
-}
-
-/* Card deck (inside bottom bar) */
-.card-deck {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 0.5rem;
   max-height: 140px;
   overflow-y: auto;
-  padding: 0;
 }
 
 .card-deck .card {
   flex-shrink: 0;
+}
+
+/* Host controls */
+.host-controls {
+  margin-top: 0.5rem;
 }
 
 /* Revealed stats */
