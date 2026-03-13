@@ -2,12 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import { PokerTable } from '../components/PokerTable';
+import { ObserversSide } from '../components/ObserversSide';
 import { CardDeck } from '../components/CardDeck';
 import { HostControls } from '../components/HostControls';
 import { RevealedStats } from '../components/RevealedStats';
 import { useSession } from '../hooks/useSession';
 import type { Participant, Session } from '../hooks/useSession';
-import { addParticipant, updateVote, updateParticipantRole, getOrCreateParticipantId, createSession } from '../lib/session';
+import { addParticipant, updateVote, updateParticipantRole, updateCoHosts, getOrCreateParticipantId, createSession } from '../lib/session';
 import type { ParticipantRole } from '../lib/session';
 import {
   setPresence,
@@ -110,6 +111,9 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const displayedParticipants =
     isDemo ? participants : dedupeParticipantsByName(participants, connectedParticipantIds, participantId);
 
+  const tableParticipants = displayedParticipants.filter((p) => p.role !== 'observer');
+  const observersList = displayedParticipants.filter((p) => p.role === 'observer');
+
   const displayName =
     searchParams.get('testName')?.trim().slice(0, 20) || userName.trim().slice(0, 20);
   const presenceRef = useRef<{ sessionId: string; participantId: string } | null>(null);
@@ -157,12 +161,19 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
   const currentParticipant = displayedParticipants.find((p) => p.participantId === participantId);
   const myVote = currentParticipant?.vote ?? null;
   const isHost = session?.hostId === participantId;
+  const isCoHost = Array.isArray(session?.coHostIds) && session.coHostIds.includes(participantId);
+  const isHostOrCoHost = isHost || isCoHost;
   const isObserver = currentParticipant?.role === 'observer';
 
   async function handleToggleObserver() {
     if (isDemo || !sessionId) return;
     const nextRole: ParticipantRole = isObserver ? 'participant' : 'observer';
     await updateParticipantRole(sessionId, participantId, nextRole);
+  }
+
+  async function handleHostSetRole(targetParticipantId: string, role: ParticipantRole) {
+    if (isDemo || !sessionId || !isHost) return;
+    await updateParticipantRole(sessionId, targetParticipantId, role);
   }
 
   function openNewSessionConfirm() {
@@ -247,18 +258,43 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
           </div>
         )}
 
-        <PokerTable
-          participants={displayedParticipants}
-          phase={session.phase}
-          currentParticipantId={isDemo ? null : participantId}
-          connectedParticipantIds={connectedParticipantIds}
-        />
+        <div className="session-page__table-area">
+          <ObserversSide
+            observers={observersList}
+            currentParticipantId={isDemo ? null : participantId}
+            connectedParticipantIds={connectedParticipantIds}
+            side="left"
+            isHost={!isDemo && isHost}
+            onSetRole={!isDemo && isHost ? handleHostSetRole : undefined}
+          />
+          <div className="session-page__table-area__center">
+            <PokerTable
+              participants={tableParticipants}
+              phase={session.phase}
+              currentParticipantId={isDemo ? null : participantId}
+              connectedParticipantIds={connectedParticipantIds}
+              sessionId={isDemo ? null : sessionId ?? null}
+              isHost={!isDemo && isHost}
+              coHostIds={session?.coHostIds ?? []}
+              onHostSetParticipantRole={!isDemo && isHost ? handleHostSetRole : undefined}
+              onToggleCoHost={
+                !isDemo && isHost && session
+                  ? (pid) => {
+                      const cur = session.coHostIds ?? [];
+                      const next = cur.includes(pid) ? cur.filter((id) => id !== pid) : [...cur, pid];
+                      void updateCoHosts(session.id, next);
+                    }
+                  : undefined
+              }
+            />
+          </div>
+        </div>
 
         {session.phase === 'revealed' && (
-          <RevealedStats participants={displayedParticipants} />
+          <RevealedStats participants={tableParticipants} />
         )}
 
-        {!isDemo && <HostControls sessionId={session.id} isHost={isHost} phase={session.phase} />}
+        {!isDemo && <HostControls sessionId={session.id} isHostOrCoHost={isHostOrCoHost} phase={session.phase} />}
 
         {isObserver ? (
           <p className="session-page__observer-hint">En mode observateur, vous voyez la session sans voter.</p>

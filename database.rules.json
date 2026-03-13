@@ -3,6 +3,10 @@
     "presence": {
       ".read": true,
       ".write": true
+    },
+    "reactions": {
+      ".read": true,
+      ".write": true
     }
   }
 }

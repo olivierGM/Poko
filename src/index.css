@@ -469,6 +469,173 @@ body {
   word-break: break-all;
 }
 
+/* Gestion des co-hôtes (visible par l’hôte) */
+.cohosts-manager {
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  max-width: 560px;
+}
+
+.cohosts-manager__title {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 0.25rem;
+}
+
+.cohosts-manager__hint {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 0 0.5rem 0;
+}
+
+.cohosts-manager__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+}
+
+.cohosts-manager__item {
+  margin: 0;
+}
+
+.cohosts-manager__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.cohosts-manager__input {
+  width: 1rem;
+  height: 1rem;
+}
+
+.cohosts-manager__name {
+  user-select: none;
+}
+
+/* Zone table + observateurs (observateurs à gauche) */
+.session-page__table-area {
+  position: relative;
+  width: 100%;
+  max-width: 960px;
+  min-height: 320px;
+}
+
+.session-page__table-area__center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* Observateurs à gauche de la table */
+.observers-side {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 160px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+.observers-side__title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.observers-side__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  overflow-y: auto;
+  max-height: 100%;
+}
+
+.observers-side__item {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.observers-side__chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.observers-side__chip--parti .observers-side__avatar {
+  opacity: 0.5;
+}
+
+.observers-side__chip--parti .observers-side__name {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.observers-side__avatar {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: 50%;
+  background: rgba(255, 200, 100, 0.4);
+  border: 1px solid rgba(255, 200, 100, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: rgba(255, 220, 150, 0.95);
+}
+
+.observers-side__name {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.observers-side__you {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.observers-side__parti {
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.75em;
+}
+
+.observers-side__action {
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  align-self: flex-start;
+}
+
 /* Poker table */
 .poker-table-container {
   width: 100%;
@@ -528,6 +695,71 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.participant-seat-wrapper__hover-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 0;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.participant-seat-wrapper__emoji-bar-slot {
+  flex-shrink: 0;
+  height: 2.5rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.participant-seat-wrapper__emoji-bar {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.emoji-reaction-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.25rem 0.4rem;
+  background: #1976d2;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+}
+
+.emoji-reaction-bar__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.emoji-reaction-bar__btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(1.2);
+}
+
+.emoji-reaction-bar__btn:active {
+  transform: scale(0.95);
+}
+
+.flying-emoji {
+  pointer-events: none;
+  z-index: 9999;
 }
 
 .participant-seat {
@@ -604,6 +836,42 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.participant-seat__role-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.participant-seat--role-clickable {
+  cursor: pointer;
+}
+
+.participant-seat__cohost {
+  color: rgba(255, 200, 80, 0.95);
+  font-size: 0.8em;
+}
+
+.participant-seat__role-btn--active {
+  background: rgba(255, 200, 80, 0.25);
+  border-color: rgba(255, 200, 80, 0.5);
+  color: rgba(255, 220, 120, 1);
+}
+
+.participant-seat__role-label {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin-right: 0.15rem;
+}
+
+.participant-seat__role-btn {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+  min-height: 28px;
 }
 
 /* Cards */

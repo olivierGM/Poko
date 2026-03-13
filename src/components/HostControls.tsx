@@ -3,14 +3,15 @@ import { revealCards, resetToVoting } from '../lib/session';
 
 interface HostControlsProps {
   sessionId: string;
-  isHost: boolean;
+  /** true si l’utilisateur est hôte ou co-hôte (peut révéler / nouveau tour). */
+  isHostOrCoHost: boolean;
   phase: 'voting' | 'revealed';
 }
 
-export function HostControls({ sessionId, isHost, phase }: HostControlsProps) {
+export function HostControls({ sessionId, isHostOrCoHost, phase }: HostControlsProps) {
   const [loading, setLoading] = useState(false);
 
-  if (!isHost) return null;
+  if (!isHostOrCoHost) return null;
 
   async function handleReveal() {
     setLoading(true);
