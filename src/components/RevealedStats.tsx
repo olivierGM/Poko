@@ -1,4 +1,5 @@
-import { CARD_VALUES } from '../lib/cards';
+import { getCardsByScale } from '../lib/cards';
+import type { CardScale } from '../lib/cards';
 import { Card } from './Card';
 import type { Participant } from '../hooks/useSession';
 
@@ -6,9 +7,10 @@ const NUMERIC_VALUES = new Set(['1', '2', '3', '5', '8', '13', '20', '40', '100'
 
 interface RevealedStatsProps {
   participants: Participant[];
+  cardScale?: CardScale;
 }
 
-export function RevealedStats({ participants }: RevealedStatsProps) {
+export function RevealedStats({ participants, cardScale = 'fibonacci' }: RevealedStatsProps) {
   // Exclure les observateurs des statistiques : seuls les participants qui votent comptent.
   const voters = participants.filter((p) => p.role !== 'observer');
   const votes = voters.map((p) => p.vote).filter((v): v is string => v != null && v !== '');
@@ -28,7 +30,7 @@ export function RevealedStats({ participants }: RevealedStatsProps) {
 
   const maxCount = Math.max(...Object.values(voteCounts), 1);
 
-  const orderedEntries = CARD_VALUES.filter((c) => (voteCounts[c.value] ?? 0) > 0).map((c) => ({
+  const orderedEntries = getCardsByScale(cardScale).filter((c) => (voteCounts[c.value] ?? 0) > 0).map((c) => ({
     value: c.value,
     count: voteCounts[c.value] ?? 0,
   }));

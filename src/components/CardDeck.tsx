@@ -1,16 +1,19 @@
-import { CARD_VALUES } from '../lib/cards';
+import { getCardsByScale } from '../lib/cards';
+import type { CardScale } from '../lib/cards';
 import { Card } from './Card';
 
 interface CardDeckProps {
   selectedValue: string | null;
   onSelect: (value: string) => void;
   disabled?: boolean;
+  cardScale?: CardScale;
 }
 
-export function CardDeck({ selectedValue, onSelect, disabled }: CardDeckProps) {
+export function CardDeck({ selectedValue, onSelect, disabled, cardScale = 'fibonacci' }: CardDeckProps) {
+  const cards = getCardsByScale(cardScale);
   return (
     <div className="card-deck">
-      {CARD_VALUES.map(({ value }) => (
+      {cards.map(({ value }) => (
         <Card
           key={value}
           value={value}

@@ -291,7 +291,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
         </div>
 
         {session.phase === 'revealed' && (
-          <RevealedStats participants={tableParticipants} />
+          <RevealedStats participants={tableParticipants} cardScale={session.cardScale} />
         )}
 
         {!isDemo && <HostControls sessionId={session.id} isHostOrCoHost={isHostOrCoHost} phase={session.phase} />}
@@ -303,6 +303,7 @@ export function SessionPage({ userName, onNameChange }: SessionPageProps) {
             selectedValue={myVote}
             onSelect={handleSelectCard}
             disabled={isDemo}
+            cardScale={session.cardScale}
           />
         )}
 

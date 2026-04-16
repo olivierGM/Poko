@@ -26,8 +26,9 @@ export function getOrCreateParticipantId(): string {
 }
 
 export type SessionPhase = 'voting' | 'revealed';
+export type CardScale = 'fibonacci' | 'tshirt';
 
-export async function createSession(hostId: string): Promise<string> {
+export async function createSession(hostId: string, cardScale: CardScale = 'fibonacci'): Promise<string> {
   const sessionId = createSessionId();
   const sessionRef = doc(db, 'sessions', sessionId);
   await setDoc(sessionRef, {
@@ -35,6 +36,7 @@ export async function createSession(hostId: string): Promise<string> {
     hostId,
     phase: 'voting' as SessionPhase,
     currentStory: '',
+    cardScale,
   });
   return sessionId;
 }

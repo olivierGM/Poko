@@ -13,6 +13,8 @@ export interface Session {
   coHostIds?: string[];
   currentStory?: string;
   phase: SessionPhase;
+  /** Échelle de vote choisie à la création. */
+  cardScale?: 'fibonacci' | 'tshirt';
 }
 
 export type ParticipantRole = 'participant' | 'observer';
@@ -64,6 +66,7 @@ export function useSession(sessionId: string | null) {
           coHostIds: Array.isArray(data.coHostIds) ? data.coHostIds : [],
           currentStory: data.currentStory,
           phase: (data.phase as SessionPhase) ?? 'voting',
+          cardScale: data.cardScale === 'tshirt' ? 'tshirt' : 'fibonacci',
         });
       },
       (err) => {

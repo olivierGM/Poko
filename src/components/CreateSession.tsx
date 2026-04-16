@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createSession, getOrCreateParticipantId } from '../lib/session';
+import type { CardScale } from '../lib/session';
 import { isFirebaseConfigured } from '../lib/firebase';
 
 interface CreateSessionProps {
@@ -11,6 +12,7 @@ export function CreateSession({ userName }: CreateSessionProps) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cardScale, setCardScale] = useState<CardScale>('fibonacci');
 
   async function handleCreate() {
     if (!userName.trim()) {
@@ -19,7 +21,7 @@ export function CreateSession({ userName }: CreateSessionProps) {
     }
     if (!isFirebaseConfigured()) {
       setError(
-        'Firebase n’est pas configuré. Crée un projet sur console.firebase.google.com, ajoute un fichier .env avec VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_API_KEY, etc. (voir .env.example).'
+        "Firebase n'est pas configuré. Crée un projet sur console.firebase.google.com, ajoute un fichier .env avec VITE_FIREBASE_PROJECT_ID, VITE_FIREBASE_API_KEY, etc. (voir .env.example)."
       );
       return;
     }
@@ -28,7 +30,7 @@ export function CreateSession({ userName }: CreateSessionProps) {
     try {
       const hostId = getOrCreateParticipantId();
       const sessionId = await Promise.race([
-        createSession(hostId),
+        createSession(hostId, cardScale),
         new Promise<never>((_, reject) =>
           setTimeout(() => reject(new Error('Délai dépassé. Vérifie ta connexion et les règles Firestore.')), 15000)
         ),
@@ -52,6 +54,29 @@ export function CreateSession({ userName }: CreateSessionProps) {
 
   return (
     <div className="create-session">
+      <fieldset className="create-session__scale-fieldset">
+        <legend className="create-session__scale-legend">Échelle de vote</legend>
+        <label className="create-session__scale-option">
+          <input
+            type="radio"
+            name="cardScale"
+            value="fibonacci"
+            checked={cardScale === 'fibonacci'}
+            onChange={() => setCardScale('fibonacci')}
+          />
+          <span>Fibonacci <span className="create-session__scale-preview">1 2 3 5 8 13 20…</span></span>
+        </label>
+        <label className="create-session__scale-option">
+          <input
+            type="radio"
+            name="cardScale"
+            value="tshirt"
+            checked={cardScale === 'tshirt'}
+            onChange={() => setCardScale('tshirt')}
+          />
+          <span>T-Shirt <span className="create-session__scale-preview">XS S M L XL XXL</span></span>
+        </label>
+      </fieldset>
       <button
         type="button"
         className="button button--primary"

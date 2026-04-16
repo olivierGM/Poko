@@ -332,6 +332,43 @@ body {
   flex-wrap: wrap;
 }
 
+.create-session {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.create-session__scale-fieldset {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.create-session__scale-legend {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 0 0.3rem;
+}
+
+.create-session__scale-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.create-session__scale-preview {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 0.25rem;
+}
+
 .create-session__error,
 .join-session__error {
   color: #f44336;
